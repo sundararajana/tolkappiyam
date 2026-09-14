@@ -350,9 +350,9 @@
             if (athikaramId === 1) {
                 return songNo.toString(); // Ezhuthathikaram only needs the global number
             } else if (athikaramId === 2) {
-                return `${songNo - 483} / ${songNo}`; // Sollathikaram offset
+                return `${songNo - 483} (${songNo})`; // Sollathikaram offset
             } else {
-                return `${songNo - 946} / ${songNo}`; // Porulathikaram offset
+                return `${songNo - 946} (${songNo})`; // Porulathikaram offset
             }
         }
 
