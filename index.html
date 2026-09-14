@@ -14,7 +14,7 @@
             --text-main: #111827;
             --text-muted: #6B7280;
         }
-        
+
         body, html {
             margin: 0;
             padding: 0;
@@ -150,7 +150,7 @@
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .status-text {
             font-weight: 600;
             color: var(--text-main);
@@ -158,10 +158,10 @@
             font-size: 1.1rem;
         }
 
-        /* Full Width Grid */
+        /* Full Width Grid - Updated minmax for wider buttons */
         .nurpa-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); /* Increased from 55px to fit "222 / 705" */
             gap: 10px;
             padding-bottom: 40px;
         }
@@ -170,13 +170,14 @@
             background-color: var(--surface);
             border: 1px solid var(--border);
             border-radius: 6px;
-            padding: 12px 8px;
-            font-size: 1rem;
+            padding: 12px 6px;
+            font-size: 0.95rem;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
             text-align: center;
             box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            white-space: nowrap; /* Prevents text from breaking into two lines */
         }
 
         .nurpa-btn:hover {
@@ -186,7 +187,7 @@
             transform: translateY(-1px);
             box-shadow: 0 2px 4px rgba(79, 70, 229, 0.1);
         }
-        
+
         .nurpa-btn.active {
             background-color: var(--primary);
             color: white;
@@ -226,9 +227,9 @@
         <div class="info-banner">
             <span><strong>இணைப்புத் திரை முறை:</strong> நூற்பா எண்களை அழுத்தினால், உரை விளக்கங்கள் தனியொரு புதிய திரையில் (New Tab) திறக்கப்படும்.</span>
         </div>
-        
+
         <div id="current-selection-text" class="status-text">நூற்பாவைத் தேர்ந்தெடுக்கவும்...</div>
-        
+
         <div id="nurpa-container" class="nurpa-grid">
             <!-- Buttons generated here -->
         </div>
@@ -237,7 +238,7 @@
     <script>
         const tolkappiamData = [
             {
-                id: 1, 
+                id: 1,
                 name: "எழுத்ததிகாரம்",
                 iyals: [
                     { name: "நூன்மரபு", start: 1, end: 33 },
@@ -278,7 +279,7 @@
                     { name: "மெய்ப்பாட்டியல்", start: 1191, end: 1217 },
                     { name: "உவமவியல்", start: 1218, end: 1255 },
                     { name: "செய்யுளியல்", start: 1256, end: 1493 },
-                    { name: "மரபியல்", start: 1494, end: 1602 } // Fixed 1602 boundary
+                    { name: "மரபியல்", start: 1494, end: 1602 }
                 ]
             }
         ];
@@ -296,7 +297,7 @@
         let currentAthikaramId = tolkappiamData[0].id;
         let currentIyal = tolkappiamData[0].iyals[0];
         let activeSongNo = null;
-        let readerWindow = null; 
+        let readerWindow = null;
 
         function init() {
             tolkappiamData.forEach(athikaram => {
@@ -344,10 +345,21 @@
             return null;
         }
 
+        // Helper function to format the button/status text
+        function getLabelForSutra(songNo, athikaramId) {
+            if (athikaramId === 1) {
+                return songNo.toString(); // Ezhuthathikaram only needs the global number
+            } else if (athikaramId === 2) {
+                return `${songNo - 483} / ${songNo}`; // Sollathikaram offset
+            } else {
+                return `${songNo - 946} / ${songNo}`; // Porulathikaram offset
+            }
+        }
+
         function populateIyals(athikaramId, autoLoadNurpas = true) {
             iyalSelect.innerHTML = '';
             const athikaram = tolkappiamData.find(a => a.id === athikaramId);
-            
+
             athikaram.iyals.forEach((iyal, index) => {
                 const option = document.createElement('option');
                 option.value = index;
@@ -361,11 +373,17 @@
 
         function populateNurpas() {
             nurpaContainer.innerHTML = '';
-            
+
             for (let i = currentIyal.start; i <= currentIyal.end; i++) {
                 const btn = document.createElement('button');
                 btn.className = 'nurpa-btn';
-                btn.textContent = i;
+
+                // Set text using the new helper function
+                btn.textContent = getLabelForSutra(i, currentAthikaramId);
+
+                // Add an explicit data attribute so we can find it easily later
+                btn.dataset.songNo = i;
+
                 if (i === activeSongNo) {
                     btn.classList.add('active');
                 }
@@ -376,30 +394,31 @@
 
         function loadNurpa(songNo) {
             activeSongNo = songNo;
-            
+
             const loc = findLocationOfSutra(songNo);
             if (loc) {
                 let dropdownsChanged = false;
-                
+
                 if (currentAthikaramId !== loc.athikaramId) {
                     currentAthikaramId = loc.athikaramId;
                     athikaramSelect.value = currentAthikaramId;
                     populateIyals(currentAthikaramId, false);
                     dropdownsChanged = true;
                 }
-                
+
                 if (parseInt(iyalSelect.value) !== loc.iyalIndex) {
                     iyalSelect.value = loc.iyalIndex;
                     const athikaram = tolkappiamData.find(a => a.id === currentAthikaramId);
                     currentIyal = athikaram.iyals[loc.iyalIndex];
                     dropdownsChanged = true;
                 }
-                
+
                 if (dropdownsChanged) {
                     populateNurpas();
                 } else {
                     document.querySelectorAll('.nurpa-btn').forEach(b => {
-                        if (parseInt(b.textContent) === songNo) {
+                        // Use the dataset attribute to match the song number accurately
+                        if (parseInt(b.dataset.songNo) === songNo) {
                             b.classList.add('active');
                         } else {
                             b.classList.remove('active');
@@ -409,15 +428,18 @@
             }
 
             const targetUrl = `https://www.tamilvu.org/slet/l0100/l0100uri.jsp?song_no=${songNo}&book_id=1&head_id=${currentAthikaramId}`;
-            
+
             if (!readerWindow || readerWindow.closed) {
                 readerWindow = window.open(targetUrl, "TamilvuReader");
             } else {
                 readerWindow.location.href = targetUrl;
-                readerWindow.focus(); 
+                readerWindow.focus();
             }
-            
-            currentSelectionText.textContent = `தற்போது திரையில்: நூற்பா ${songNo}`;
+
+            // Update the status text with the formatted label
+            const labelStr = getLabelForSutra(songNo, currentAthikaramId);
+            currentSelectionText.textContent = `தற்போது திரையில்: நூற்பா ${labelStr}`;
+
             prevBtn.disabled = (songNo <= 1);
             nextBtn.disabled = (songNo >= MAX_SUTRA);
         }
