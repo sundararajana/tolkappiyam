@@ -230,6 +230,13 @@
 
         <div id="current-selection-text" class="status-text">நூற்பாவைத் தேர்ந்தெடுக்கவும்...</div>
 
+        <!-- Dynamic Kuraloviyam Link -->
+<div style="margin-bottom: 20px;">
+    <a id="kuraloviyam-link" href="#" target="_blank" style="display: none; color: var(--primary); text-decoration: none; font-weight: 600; background-color: #EEF2FF; padding: 8px 16px; border-radius: 6px; border: 1px solid #C7D2FE;">
+        📖 குறளோவியத்தில் எளிய உரை படிக்க
+    </a>
+</div>
+
         <div id="nurpa-container" class="nurpa-grid">
             <!-- Buttons generated here -->
         </div>
@@ -436,6 +443,17 @@
                         }
                     });
                 }
+            }
+
+            // Kuraloviyam Dynamic Link
+            const kuralLink = document.getElementById('kuraloviyam-link');
+            if (songNo <= 946) {
+                // Books 1 & 2: Exact match, link directly to the specific sutra
+                kuralLink.href = `https://kuraloviyam.com/tholkappiyam/${songNo}`;
+                kuralLink.style.display = 'inline-block';
+            } else {
+                // Book 3: Out of sync, so we hide the specific link
+                kuralLink.style.display = 'none';
             }
 
             const targetUrl = `https://www.tamilvu.org/slet/l0100/l0100uri.jsp?song_no=${songNo}&book_id=1&head_id=${currentAthikaramId}`;
