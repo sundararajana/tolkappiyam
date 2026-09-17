@@ -544,7 +544,7 @@
                 // Match the button clicked (songNo) to the global_number in the JSON
                 const sutraObj = sutraDatabase.find(s => s.global_number === songNo);
 
-                if (sutraObj) {
+                if (sutraObj && songNo <= 483) {
                     document.getElementById('sutra-title').textContent = `${sutraObj.adhikaram} - ${sutraObj.iyal} (${sutraObj.number})`;
                     document.getElementById('sutra-text').textContent = sutraObj.text;
                     document.getElementById('sutra-display').style.display = 'block';
