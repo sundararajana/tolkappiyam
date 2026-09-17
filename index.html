@@ -533,7 +533,7 @@
 
             // 2. Inject the JSON text into the card
             if (sutraDatabase && sutraDatabase.length > 0) {
-                const sutraObj = sutraDatabase.find(s => s.number === songNo);
+                const sutraObj = sutraDatabase.find(s => s.global_number === songNo);
                 if (sutraObj) {
                     // Update the title and text
                     document.getElementById('sutra-title').textContent = sutraObj.title || "";
