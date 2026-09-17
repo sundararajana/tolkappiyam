@@ -419,6 +419,17 @@
             }
         }
 
+        function openTamilVuPopup(songNo, athikaramId) {
+            const targetUrl = `https://www.tamilvu.org/slet/l0100/l0100uri.jsp?song_no=${songNo}&book_id=1&head_id=${currentAthikaramId}`;
+
+            if (!readerWindow || readerWindow.closed) {
+                readerWindow = window.open(targetUrl, "TamilvuReader");
+            } else {
+                readerWindow.location.href = targetUrl;
+                readerWindow.focus();
+            }
+        }
+
         function loadNurpa(songNo, openTab = true) {
             activeSongNo = songNo;
 
@@ -469,19 +480,16 @@
             */
 
             if (openTab) {
-                const targetUrl = `https://www.tamilvu.org/slet/l0100/l0100uri.jsp?song_no=${songNo}&book_id=1&head_id=${currentAthikaramId}`;
-
-                if (!readerWindow || readerWindow.closed) {
-                    readerWindow = window.open(targetUrl, "TamilvuReader");
-                } else {
-                    readerWindow.location.href = targetUrl;
-                    readerWindow.focus();
-                }
+                openTamilVuPopup(songNo, currentAthikaramId);
             }
 
             // Update the status text with the formatted label
             const labelStr = getLabelForSutra(songNo, currentAthikaramId);
-            currentSelectionText.textContent = `தற்போது திரையில்: நூற்பா ${labelStr}`;
+            currentSelectionText.innerHTML = `தேர்ந்தெடுக்கப்பட்ட நூற்பா: <strong>${labelStr}</strong>
+    <a href="#" onclick="openTamilVuPopup(${songNo}, ${currentAthikaramId}); return false;"
+       style="margin-left: 15px; color: var(--primary); font-weight: 600; text-decoration: none; border: 1px solid var(--primary); padding: 4px 10px; border-radius: 6px; background-color: #ECFDF5; display: inline-block; font-size: 0.9rem;">
+       உரையைத் திறக்க ↗
+    </a>`;
 
             prevBtn.disabled = (songNo <= 1);
             nextBtn.disabled = (songNo >= MAX_SUTRA);
