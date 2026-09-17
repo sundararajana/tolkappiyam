@@ -532,14 +532,17 @@
             */
 
             // 2. Inject the JSON text into the card
-            if (sutraDatabase && sutraDatabase.length > 0) {
+            if (typeof sutraDatabase !== 'undefined' && sutraDatabase.length > 0) {
+                // Match the button clicked (songNo) to the global_number in the JSON
                 const sutraObj = sutraDatabase.find(s => s.global_number === songNo);
+
                 if (sutraObj) {
-                    // Update the title and text
-                    document.getElementById('sutra-title').textContent = sutraObj.title || "";
+                    document.getElementById('sutra-title').textContent = `${sutraObj.adhikaram} - ${sutraObj.iyal} (${sutraObj.number})`;
                     document.getElementById('sutra-text').textContent = sutraObj.text;
-                    // Make the card visible
                     document.getElementById('sutra-display').style.display = 'block';
+                } else {
+                    // Hide the box if the sutra isn't in the JSON (defensive)
+                    document.getElementById('sutra-display').style.display = 'none';
                 }
             }
 
