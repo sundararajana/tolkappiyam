@@ -462,6 +462,14 @@
                 // Add an explicit data attribute so we can find it easily later
                 btn.dataset.songNo = i;
 
+                // Add native browser tooltip on hover
+                if (typeof sutraDatabase !== 'undefined' && sutraDatabase.length > 0) {
+                    const sutraObj = sutraDatabase.find(s => s.global_number === i);
+                    if (sutraObj) {
+                        btn.title = sutraObj.text;
+                    }
+                }
+
                 if (i === activeSongNo) {
                     btn.classList.add('active');
                 }
