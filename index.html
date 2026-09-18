@@ -526,15 +526,6 @@
 
             populateIyals(currentAthikaramId);
 
-            // Check URL for ?song_no=
-            const urlParams = new URLSearchParams(window.location.search);
-            const requestedSong = parseInt(urlParams.get('song_no'));
-
-            // If a valid number was passed, load it without triggering the popup
-            if (requestedSong && requestedSong >= 1 && requestedSong <= MAX_SUTRA) {
-                loadNurpa(requestedSong, false);
-            }
-
             // Wire up the search bar 'Enter' key
             document.getElementById('sutra-search-input').addEventListener('keydown', function (e) {
                 if (e.key === 'Enter') {
