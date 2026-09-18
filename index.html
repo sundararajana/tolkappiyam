@@ -425,10 +425,11 @@
                     const row = `
                         <tr style="border-bottom: 1px solid #e2e8f0; transition: background-color 0.2s;">
                             <td style="padding: 12px; vertical-align: top;">
-                                <a href="?song_no=${s.global_number}"
-                                style="display: inline-block; padding: 4px 8px; background: #eff6ff; color: var(--primary); border: 1px solid #bfdbfe; border-radius: 4px; text-decoration: none; font-weight: bold;">
-                                ${s.global_number}
-                                </a>
+                                <button
+                                    onclick="history.pushState(null, '', '?song_no=${s.global_number}'); loadNurpa(${s.global_number}, true); window.scrollTo({top: 0, behavior: 'smooth'});"
+                                    style="padding: 4px 8px; background: #eff6ff; color: var(--primary); border: 1px solid #bfdbfe; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                                    ${s.global_number}
+                                </button>
                             </td>
                             <td style="padding: 12px; vertical-align: top;">
                                 <div style="white-space: pre-line; line-height: 1.6; margin-bottom: 8px;">
