@@ -231,31 +231,6 @@
             <h1>தொல்காப்பியம் உரை</h1>
         </div>
 
-        <!-- sutra text search -->
-        <div id="search-section" style="margin: 20px 0; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
-            <div style="display: flex; gap: 10px;">
-                <input type="text" id="sutra-search-input" placeholder="நூற்பாக்களில் தேட... (Search text or meaning)" 
-                    style="flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1rem;">
-                <button onclick="executeSearch()" 
-                        style="padding: 10px 20px; background-color: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
-                    தேடு
-                </button>
-            </div>
-
-            <!-- Hidden table that appears when there are results -->
-            <div id="search-results-container" style="display: none; margin-top: 15px; max-height: 400px; overflow-y: auto;">
-                <table style="width: 100%; border-collapse: collapse; background: white;">
-                    <thead style="position: sticky; top: 0; background: #f1f5f9; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
-                        <tr>
-                            <th style="padding: 10px; text-align: left; width: 15%; border-bottom: 2px solid #cbd5e1;">எண்</th>
-                            <th style="padding: 10px; text-align: left; border-bottom: 2px solid #cbd5e1;">நூற்பா (Sutra)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="search-results-body"></tbody>
-                </table>
-            </div>
-        </div>
-
         <div class="selectors-group">
             <div class="select-wrapper">
                 <label for="athikaram-select">அதிகாரம்</label>
@@ -276,6 +251,32 @@
 
     <!-- Main Workspace -->
     <main class="main-content">
+
+        <!-- sutra text search -->
+        <div id="search-section" style="margin: 20px 0; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="sutra-search-input" placeholder="நூற்பாக்களில் தேட... (Search text or meaning)"
+                    style="flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1rem;">
+                <button onclick="executeSearch()"
+                        style="padding: 10px 20px; background-color: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                    தேடு
+                </button>
+            </div>
+
+            <!-- Hidden table that appears when there are results -->
+            <div id="search-results-container" style="display: none; margin-top: 15px; max-height: 400px; overflow-y: auto;">
+                <table style="width: 100%; border-collapse: collapse; background: white;">
+                    <thead style="position: sticky; top: 0; background: #f1f5f9; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+                        <tr>
+                            <th style="padding: 10px; text-align: left; width: 15%; border-bottom: 2px solid #cbd5e1;">எண்</th>
+                            <th style="padding: 10px; text-align: left; border-bottom: 2px solid #cbd5e1;">நூற்பா (Sutra)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="search-results-body"></tbody>
+                </table>
+            </div>
+        </div>
+
         <div class="info-banner">
             <span><strong>இணைப்புத் திரை முறை:</strong> நூற்பா எண்களை அழுத்தினால், உரை விளக்கங்கள் தனியொரு புதிய திரையில் (New Tab) திறக்கப்படும்.</span>
         </div>
@@ -401,7 +402,7 @@
                 const lowerQuery = query.toLowerCase();
                 const matchesTamil = s.text && s.text.includes(query);
                 const matchesEnglish = s.meaning && s.meaning.toLowerCase().includes(lowerQuery);
-                
+
                 return matchesTamil || matchesEnglish;
             });
 
@@ -417,12 +418,12 @@
                 results.forEach(s => {
                     // Highlight text if matched, otherwise just use text
                     const highlightedText = s.text.replace(highlightRegex, '<mark style="background-color: #fef08a; border-radius: 2px; padding: 0 2px;">$1</mark>');
-                    
+
                     // Build the row with a deep link to ?song_no=
                     const row = `
                         <tr style="border-bottom: 1px solid #e2e8f0; transition: background-color 0.2s;">
                             <td style="padding: 12px; vertical-align: top;">
-                                <a href="?song_no=${s.global_number}" 
+                                <a href="?song_no=${s.global_number}"
                                 style="display: inline-block; padding: 4px 8px; background: #eff6ff; color: var(--primary); border: 1px solid #bfdbfe; border-radius: 4px; text-decoration: none; font-weight: bold;">
                                 ${s.global_number}
                                 </a>
