@@ -449,6 +449,18 @@
             if (autoLoadNurpas) populateNurpas();
         }
 
+        function isJsonSutraValid(songNo) {
+            // Only up to "ezhutatikaram", sutra number in the derived
+            // json from Project Madurai syncs with Tamilvu numbering.
+            return songNo <= 483;
+        }
+
+        function isKuraloviumSutraValid(songNo) {
+            // Only up to "ezhutatikaram", sutra number in kuraloviyam
+            // matches with Tamilvu numbering.
+            return songNo <= 483;
+        }
+
         function populateNurpas() {
             nurpaContainer.innerHTML = '';
 
@@ -465,7 +477,7 @@
                 // Add native browser tooltip on hover
                 if (typeof sutraDatabase !== 'undefined' && sutraDatabase.length > 0) {
                     const sutraObj = sutraDatabase.find(s => s.global_number === i);
-                    if (sutraObj) {
+                    if (sutraObj && isJsonSutraValid(sutraObj.global_number)) {
                         btn.title = sutraObj.text;
                     }
                 }
@@ -525,11 +537,9 @@
                 }
             }
 
-            /* This is out-of-sync buggy */
-            /*
-            // Kuraloviyam Dynamic Link
             const kuralLink = document.getElementById('kuraloviyam-link');
-            if (songNo <= 946) {
+            // Kuraloviyam Dynamic Link
+            if (isKuraloviumSutraValid(songNo)) {
                 // Books 1 & 2: Exact match, link directly to the specific sutra
                 kuralLink.href = `https://kuraloviyam.com/tholkappiyam/${songNo}`;
                 kuralLink.style.display = 'inline-block';
@@ -537,14 +547,13 @@
                 // Book 3: Out of sync, so we hide the specific link
                 kuralLink.style.display = 'none';
             }
-            */
 
             // 2. Inject the JSON text into the card
             if (typeof sutraDatabase !== 'undefined' && sutraDatabase.length > 0) {
                 // Match the button clicked (songNo) to the global_number in the JSON
                 const sutraObj = sutraDatabase.find(s => s.global_number === songNo);
 
-                if (sutraObj && songNo <= 483) {
+                if (sutraObj && isJsonSutraValid(songNo)) {
                     document.getElementById('sutra-title').textContent = `${sutraObj.adhikaram} - ${sutraObj.iyal} (${sutraObj.number})`;
                     document.getElementById('sutra-text').textContent = sutraObj.text;
                     document.getElementById('sutra-display').style.display = 'block';
