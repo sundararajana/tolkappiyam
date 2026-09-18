@@ -476,6 +476,12 @@
             if (autoLoadNurpas) populateNurpas();
         }
 
+        function isSafeSutraNumber(songNo) {
+            // Safe zone: Book 1, Book 2, and Book 3 up to sutra 415
+            // After that json data is out of sync with Tamilvu numbering
+            return songNo <= 1361;
+        }
+
         function isKuraloviumSutraValid(songNo) {
             // Only up to "ezhutatikaram", sutra number in kuraloviyam
             // matches with Tamilvu numbering.
@@ -497,9 +503,11 @@
 
                 // Add native browser tooltip on hover
                 if (typeof sutraDatabase !== 'undefined' && sutraDatabase.length > 0) {
-                    const sutraObj = sutraDatabase.find(s => s.global_number === i);
-                    if (sutraObj) {
-                        btn.title = sutraObj.text;
+                    if (isSafeSutraNumber(i)) {
+                        const sutraObj = sutraDatabase.find(s => s.global_number === i);
+                        if (sutraObj) {
+                            btn.title = sutraObj.text;
+                        }
                     }
                 }
 
@@ -575,7 +583,7 @@
                 // Find the sutra by its dynamically generated global number
                 const sutraObj = sutraDatabase.find(s => s.global_number === parseInt(songNo, 10));
 
-                if (sutraObj) {
+                if (sutraObj && isSafeSutraNumber(songNo)) {
                     document.getElementById('sutra-title').textContent = `${sutraObj.adhikaram} - ${sutraObj.iyal} (${sutraObj.local_number})`;
 
                     // Inject Tamil text, category, and English meaning
