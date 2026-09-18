@@ -412,14 +412,16 @@
             if (results.length === 0) {
                 resultsBody.innerHTML = `<tr><td colspan="2" style="padding: 15px; text-align: center; color: #64748b;">முடிவுகள் இல்லை (No results found)</td></tr>`;
             } else {
-                // Regex to highlight the search term (case-insensitive for English)
+                // Regex to highlight the search term (case-insensitive)
                 const highlightRegex = new RegExp(`(${query})`, 'gi');
 
                 results.forEach(s => {
-                    // Highlight text if matched, otherwise just use text
-                    const highlightedText = s.text.replace(highlightRegex, '<mark style="background-color: #fef08a; border-radius: 2px; padding: 0 2px;">$1</mark>');
+                    // Apply highlight to all three fields
+                    const highlightedText = s.text ? s.text.replace(highlightRegex, '<mark style="background-color: #fef08a; border-radius: 2px; padding: 0 2px;">$1</mark>') : '';
+                    const highlightedCategory = s.category ? s.category.replace(highlightRegex, '<mark style="background-color: #fef08a; border-radius: 2px; padding: 0 2px;">$1</mark>') : '';
+                    const highlightedMeaning = s.meaning ? s.meaning.replace(highlightRegex, '<mark style="background-color: #fef08a; border-radius: 2px; padding: 0 2px;">$1</mark>') : '';
 
-                    // Build the row with a deep link to ?song_no=
+                    // Build the row mirroring the inline display design
                     const row = `
                         <tr style="border-bottom: 1px solid #e2e8f0; transition: background-color 0.2s;">
                             <td style="padding: 12px; vertical-align: top;">
@@ -428,8 +430,14 @@
                                 ${s.global_number}
                                 </a>
                             </td>
-                            <td style="padding: 12px; vertical-align: top; white-space: pre-line; line-height: 1.6;">
-                                ${highlightedText}
+                            <td style="padding: 12px; vertical-align: top;">
+                                <div style="white-space: pre-line; line-height: 1.6; margin-bottom: 8px;">
+                                    ${highlightedText}
+                                </div>
+                                <div style="font-size: 0.85em; color: #4B5563; border-top: 1px dashed #e2e8f0; padding-top: 8px;">
+                                    <strong style="color: var(--primary); display: block; margin-bottom: 2px;">${highlightedCategory}</strong>
+                                    ${highlightedMeaning}
+                                </div>
                             </td>
                         </tr>
                     `;
