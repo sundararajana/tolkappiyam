@@ -716,7 +716,7 @@
             nextBtn.disabled = (songNo >= MAX_SUTRA);
 
             // Wire up the search bar 'Enter' key
-            document.getElementById('sutra-search-input').addEventListener('keypress', function (e) {
+            document.getElementById('sutra-search-input').addEventListener('keydown', function (e) {
                 if (e.key === 'Enter') {
                     executeSearch();
                 }
