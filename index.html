@@ -353,12 +353,39 @@
         let sutraDatabase = [];
 
         function init() {
-            // Fetch the new JSON file
-            fetch('tolkappiyam.json')
+            fetch('tolkappiyam_complete.json')
                 .then(response => response.json())
                 .then(data => {
-                    sutraDatabase = data.sutras;
+                    let globalCounter = 1;
+
+                    // Loop through the 3 Adhikarams
+                    data.forEach(adhikaramObj => {
+                        const adhikaramName = adhikaramObj.adhikaaram;
+
+                        // Loop through the Iyals in each Adhikaram
+                        adhikaramObj.iyal.forEach(iyalObj => {
+                            const iyalName = iyalObj.iyal_name;
+                            let localCounter = 1; // Resets for each Iyal
+
+                            // Loop through the Noorpas
+                            iyalObj.noorpa.forEach(noorpaObj => {
+                                sutraDatabase.push({
+                                    global_number: globalCounter,
+                                    local_number: localCounter,
+                                    adhikaram: adhikaramName,
+                                    iyal: iyalName,
+                                    text: noorpaObj.paadal,
+                                    category: noorpaObj.vilakkam.paadal_category,
+                                    meaning: noorpaObj.vilakkam.paadal_meaning
+                                });
+                                globalCounter++;
+                                localCounter++;
+                            });
+                        });
+                    });
+
                     populateNurpas();
+
                     // Check URL for ?song_no=
                     const urlParams = new URLSearchParams(window.location.search);
                     const requestedSong = parseInt(urlParams.get('song_no'));
@@ -449,12 +476,6 @@
             if (autoLoadNurpas) populateNurpas();
         }
 
-        function isJsonSutraValid(songNo) {
-            // Only up to "ezhutatikaram", sutra number in the derived
-            // json from Project Madurai syncs with Tamilvu numbering.
-            return songNo <= 483;
-        }
-
         function isKuraloviumSutraValid(songNo) {
             // Only up to "ezhutatikaram", sutra number in kuraloviyam
             // matches with Tamilvu numbering.
@@ -477,7 +498,7 @@
                 // Add native browser tooltip on hover
                 if (typeof sutraDatabase !== 'undefined' && sutraDatabase.length > 0) {
                     const sutraObj = sutraDatabase.find(s => s.global_number === i);
-                    if (sutraObj && isJsonSutraValid(sutraObj.global_number)) {
+                    if (sutraObj) {
                         btn.title = sutraObj.text;
                     }
                 }
@@ -549,16 +570,25 @@
             }
 
             // 2. Inject the JSON text into the card
+            // Display inline JSON text if available
             if (typeof sutraDatabase !== 'undefined' && sutraDatabase.length > 0) {
-                // Match the button clicked (songNo) to the global_number in the JSON
-                const sutraObj = sutraDatabase.find(s => s.global_number === songNo);
+                // Find the sutra by its dynamically generated global number
+                const sutraObj = sutraDatabase.find(s => s.global_number === parseInt(songNo, 10));
 
-                if (sutraObj && isJsonSutraValid(songNo)) {
-                    document.getElementById('sutra-title').textContent = `${sutraObj.adhikaram} - ${sutraObj.iyal} (${sutraObj.number})`;
-                    document.getElementById('sutra-text').textContent = sutraObj.text;
+                if (sutraObj) {
+                    document.getElementById('sutra-title').textContent = `${sutraObj.adhikaram} - ${sutraObj.iyal} (${sutraObj.local_number})`;
+
+                    // Inject Tamil text, category, and English meaning
+                    document.getElementById('sutra-text').innerHTML = `
+                    <div style="white-space: pre-line; margin-bottom: 12px; font-size: 1.1em; color: var(--text-dark);">
+                        ${sutraObj.text}
+                    </div>
+                    <div style="font-size: 0.9em; color: #4B5563; border-top: 1px dashed #CBD5E1; padding-top: 12px;">
+                        <strong style="color: var(--primary);">${sutraObj.category}</strong><br>
+                        ${sutraObj.meaning}
+                    </div>`;
                     document.getElementById('sutra-display').style.display = 'block';
                 } else {
-                    // Hide the box if the sutra isn't in the JSON (defensive)
                     document.getElementById('sutra-display').style.display = 'none';
                 }
             }
