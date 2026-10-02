@@ -201,6 +201,14 @@ function showOccurrences(word) {
         const div = document.createElement("div");
         div.className = "occurrence";
 
+        const link = document.createElement("a");
+
+        link.href =
+            SUTRA_BASE +
+            encodeURIComponent(occurrence.global_noorpa);
+
+        link.target = "_blank";
+
         const location = document.createElement("div");
         location.className = "location";
 
@@ -211,7 +219,7 @@ function showOccurrences(word) {
             ` · இயல் ${escapeHtml(occurrence.iyal)}` +
             ` · நூற்பா ${escapeHtml(occurrence.noorpa)}`;
 
-        div.appendChild(location);
+        link.appendChild(location);
 
         const kwic = document.createElement("div");
         kwic.className = "kwic";
@@ -222,23 +230,9 @@ function showOccurrences(word) {
             occurrence.paadal_position
         );
 
-        div.appendChild(kwic);
+        link.appendChild(kwic);
 
-        const link = document.createElement("a");
-
-        link.href =
-            SUTRA_BASE +
-            encodeURIComponent(occurrence.global_noorpa);
-
-        link.target = "_blank";
-
-        const text = document.createElement("div");
-        text.className = "text";
-        text.textContent = occurrence.text;
-
-        link.appendChild(text);
         div.appendChild(link);
-
         container.appendChild(div);
     }
 
