@@ -189,11 +189,6 @@ function showWords(initial) {
 
         container.appendChild(button);
     }
-
-    document.getElementById("words").scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-    });
 }
 
 function showOccurrences(word) {
@@ -246,6 +241,11 @@ function showOccurrences(word) {
 
         container.appendChild(div);
     }
+
+    document.getElementById("occurrences").scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
 }
 
 function makeKwic(text, word, position) {
