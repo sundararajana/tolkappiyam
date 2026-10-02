@@ -19,8 +19,6 @@ concordance = defaultdict(list)
 
 global_noorpa = 0
 
-paadal_position = 0
-
 for adhikaaram in corpus:
     for iyal_number, iyal_data in enumerate(adhikaaram["iyal"], start=1):
         for noorpa_number, noorpa_data in enumerate(
@@ -31,6 +29,8 @@ for adhikaaram in corpus:
             paadal = unicodedata.normalize(
                 "NFC", noorpa_data["paadal"]
             )
+
+            paadal_position = 0
 
             lines = paadal.splitlines()
 
@@ -49,8 +49,7 @@ for adhikaaram in corpus:
                         "paadal_position": paadal_position,
                         "text": paadal
                     })
-
-                paadal_position += 1
+                    paadal_position += 1
 
 with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
     json.dump(
