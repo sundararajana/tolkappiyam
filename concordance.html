@@ -121,6 +121,7 @@ const tamilOrder = [
 const SUTRA_BASE =
     "https://sundararajana.github.io/tolkappiyam/?song_no=";
 
+let nurpas = [];
 let concordance = {};
 
 fetch("concordance.json")
@@ -131,7 +132,8 @@ fetch("concordance.json")
         return response.json();
     })
     .then(data => {
-        concordance = data;
+        nurpas = data.nurpas;
+        concordance = data.concordance;
 
         const wordCount = Object.keys(concordance).length;
         const occurrenceCount =
@@ -149,6 +151,10 @@ fetch("concordance.json")
             "தொடரடைவுத் தரவை ஏற்ற முடியவில்லை.";
     });
 
+
+function getSutraText(nurpa_number) {
+    return nurpas[nurpa_number];
+}
 
 function showInitials() {
     const container = document.getElementById("initials");
@@ -225,7 +231,7 @@ function showOccurrences(word) {
         kwic.className = "kwic";
 
         kwic.innerHTML = makeKwic(
-            occurrence.text,
+            getSutraText(occurrence.global_noorpa),
             word,
             occurrence.paadal_position
         );

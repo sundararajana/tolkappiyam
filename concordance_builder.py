@@ -15,6 +15,7 @@ def tokenize(text):
 with open(INPUT_FILE, "r", encoding="utf-8") as f:
     corpus = json.load(f)
 
+nurpas = []
 concordance = defaultdict(list)
 
 global_noorpa = 0
@@ -29,6 +30,7 @@ for adhikaaram in corpus:
             paadal = unicodedata.normalize(
                 "NFC", noorpa_data["paadal"]
             )
+            nurpas.append(paadal)
 
             paadal_position = 0
 
@@ -46,14 +48,15 @@ for adhikaaram in corpus:
                         "global_noorpa": global_noorpa,
                         "line": line_number,
                         "position": position,
-                        "paadal_position": paadal_position,
-                        "text": paadal
+                        "paadal_position": paadal_position
                     })
                     paadal_position += 1
 
+output = { "nurpas" : nurpas, "concordance" : concordance };
+
 with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
     json.dump(
-        concordance,
+        output,
         f,
         ensure_ascii=False,
         indent=2
