@@ -196,7 +196,6 @@ function showWords(initial) {
     });
 }
 
-
 function showOccurrences(word) {
     const container = document.getElementById("occurrences");
     container.innerHTML = "";
@@ -206,15 +205,6 @@ function showOccurrences(word) {
     for (const occurrence of occurrences) {
         const div = document.createElement("div");
         div.className = "occurrence";
-
-        const link = document.createElement("a");
-
-        link.href =
-            SUTRA_BASE +
-            encodeURIComponent(occurrence.global_noorpa);
-
-        link.target = "_blank";
-
 
         const location = document.createElement("div");
         location.className = "location";
@@ -226,8 +216,7 @@ function showOccurrences(word) {
             ` · இயல் ${escapeHtml(occurrence.iyal)}` +
             ` · நூற்பா ${escapeHtml(occurrence.noorpa)}`;
 
-        link.appendChild(location);
-
+        div.appendChild(location);
 
         const kwic = document.createElement("div");
         kwic.className = "kwic";
@@ -238,26 +227,26 @@ function showOccurrences(word) {
             occurrence.paadal_position
         );
 
-        link.appendChild(kwic);
+        div.appendChild(kwic);
 
+        const link = document.createElement("a");
+
+        link.href =
+            SUTRA_BASE +
+            encodeURIComponent(occurrence.global_noorpa);
+
+        link.target = "_blank";
 
         const text = document.createElement("div");
         text.className = "text";
-
         text.textContent = occurrence.text;
 
         link.appendChild(text);
-
         div.appendChild(link);
+
         container.appendChild(div);
     }
-
-    document.getElementById("occurrences").scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-    });
 }
-
 
 function makeKwic(text, word, position) {
     if (typeof text !== "string") {
