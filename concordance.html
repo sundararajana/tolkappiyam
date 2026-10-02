@@ -152,8 +152,8 @@ fetch("concordance.json")
     });
 
 
-function getSutraText(nurpa_number) {
-    return nurpas[nurpa_number];
+function getSutraText(global_noorpa) {
+    return nurpas[global_noorpa - 1];
 }
 
 function showInitials() {
