@@ -28,8 +28,19 @@
     }
 
     .word {
-        display: inline-block;
-        margin: 0.2rem 0.4rem 0.2rem 0;
+        display: block;
+        margin: 0.15rem 0;
+        padding: 0;
+        border: 0;
+        background: none;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    .word-count {
+       color: #666;
+        margin-left: 0.5rem;
     }
 
     .occurrence {
@@ -159,8 +170,8 @@ function showWords(initial) {
         const button = document.createElement("button");
         button.className = "word";
 
-        button.textContent =
-            `${word} (${concordance[word].length})`;
+        button.innerHTML =
+            `${escapeHtml(word)} <span class="word-count">(${concordance[word].length})</span>`;
 
         button.onclick = () => {
             showOccurrences(word);
