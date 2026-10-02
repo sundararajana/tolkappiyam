@@ -16,21 +16,21 @@ with open(INPUT_FILE, "r", encoding="utf-8") as f:
 nurpas = []
 concordance = defaultdict(list)
 
-global_noorpa = 0
+global_nurpa = 0
 
 for adhikaaram in corpus:
     for iyal_number, iyal_data in enumerate(adhikaaram["iyal"], start=1):
         for noorpa_number, noorpa_data in enumerate(
             iyal_data["noorpa"], start=1
         ):
-            global_noorpa += 1
+            global_nurpa += 1
 
             paadal = unicodedata.normalize(
                 "NFC", noorpa_data["paadal"]
             )
             nurpas.append(paadal)
 
-            paadal_position = 0
+            nurpa_position = 0
 
             lines = paadal.splitlines()
 
@@ -43,12 +43,12 @@ for adhikaaram in corpus:
                         "iyal_name": iyal_data["iyal_name"],
                         "iyal": iyal_number,
                         "noorpa": noorpa_number,
-                        "global_noorpa": global_noorpa,
+                        "global_nurpa": global_nurpa,
                         "line": line_number,
                         "position": position,
-                        "paadal_position": paadal_position
+                        "nurpa_position": nurpa_position
                     })
-                    paadal_position += 1
+                    nurpa_position += 1
 
 output = { "nurpas" : nurpas, "concordance" : concordance };
 

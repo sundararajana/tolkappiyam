@@ -195,8 +195,8 @@
             box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
         }
 
-        /* Sutra Display Card */
-        .sutra-card {
+        /* Nurpa Display Card */
+        .nurpa-card {
             background-color: var(--surface);
             border-left: 4px solid var(--primary);
             border-radius: 0 8px 8px 0;
@@ -206,14 +206,14 @@
             display: none; /* Hidden until a button is clicked */
         }
 
-        .sutra-title {
+        .nurpa-title {
             font-size: 1rem;
             font-weight: 700;
             color: var(--primary);
             margin: 0 0 10px 0;
         }
 
-        .sutra-text {
+        .nurpa-text {
             font-size: 1.15rem;
             line-height: 1.8;
             color: var(--text-main);
@@ -257,10 +257,10 @@
             <span><strong><a href="concordance.html" target="_blank">தொல்காப்பியத் தொடரடைவு</a></strong></span>
         </div>
 
-        <!-- sutra text search -->
+        <!-- nurpa text search -->
         <div id="search-section" style="margin: 20px 0; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
             <div style="display: flex; gap: 10px;">
-                <input type="text" id="sutra-search-input" placeholder="நூற்பாக்களில் தேட... (Search text or meaning)"
+                <input type="text" id="nurpa-search-input" placeholder="நூற்பாக்களில் தேட... (Search text or meaning)"
                     style="flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1rem;">
                 <button onclick="executeSearch()"
                         style="padding: 10px 20px; background-color: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
@@ -274,7 +274,7 @@
                     <thead style="position: sticky; top: 0; background: #f1f5f9; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
                         <tr>
                             <th style="padding: 10px; text-align: left; width: 15%; border-bottom: 2px solid #cbd5e1;">எண்</th>
-                            <th style="padding: 10px; text-align: left; border-bottom: 2px solid #cbd5e1;">நூற்பா (Sutra)</th>
+                            <th style="padding: 10px; text-align: left; border-bottom: 2px solid #cbd5e1;">நூற்பா (Nurpa)</th>
                         </tr>
                     </thead>
                     <tbody id="search-results-body"></tbody>
@@ -295,10 +295,10 @@
         </a>
         </div>
 
-        <!-- The container where the sutra text will appear -->
-        <div id="sutra-display" class="sutra-card">
-          <h4 id="sutra-title" class="sutra-title"></h4>
-          <p id="sutra-text" class="sutra-text"></p>
+        <!-- The container where the nurpa text will appear -->
+        <div id="nurpa-display" class="nurpa-card">
+          <h4 id="nurpa-title" class="nurpa-title"></h4>
+          <p id="nurpa-text" class="nurpa-text"></p>
         </div>
 
         <div id="nurpa-container" class="nurpa-grid">
@@ -386,7 +386,7 @@
             }
         ];
 
-        const MAX_SUTRA = tolkappiamData[2].iyals[8].end;
+        const MAX_NURPA = tolkappiamData[2].iyals[8].end;
 
         const athikaramSelect = document.getElementById('athikaram-select');
         const iyalSelect = document.getElementById('iyal-select');
@@ -401,10 +401,10 @@
         let activeSongNo = null;
         let readerWindow = null;
 
-        let sutraDatabase = [];
+        let nurpaDatabase = [];
 
         function executeSearch() {
-            const inputField = document.getElementById('sutra-search-input');
+            const inputField = document.getElementById('nurpa-search-input');
             const query = inputField.value.trim();
             const resultsContainer = document.getElementById('search-results-container');
             const resultsBody = document.getElementById('search-results-body');
@@ -416,9 +416,9 @@
             }
 
             // 1. Filter the database
-            const results = sutraDatabase.filter(s => {
+            const results = nurpaDatabase.filter(s => {
                 // Must be in the safe zone
-                if (!isSafeSutraNumber(s.global_number)) return false;
+                if (!isSafeNurpaNumber(s.global_number)) return false;
 
                 const lowerQuery = query.toLowerCase();
                 const matchesTamil = s.text && s.text.includes(query);
@@ -488,7 +488,7 @@
 
                             // Loop through the Noorpas
                             iyalObj.noorpa.forEach(noorpaObj => {
-                                sutraDatabase.push({
+                                nurpaDatabase.push({
                                     global_number: globalCounter,
                                     local_number: localCounter,
                                     adhikaram: adhikaramName,
@@ -513,7 +513,7 @@
                         loadNurpa(requestedSong, false);
                     }
                 })
-                .catch(error => console.error("Error loading sutra text:", error));
+                .catch(error => console.error("Error loading nurpa text:", error));
 
             tolkappiamData.forEach(athikaram => {
                 const option = document.createElement('option');
@@ -538,7 +538,7 @@
             });
 
             nextBtn.addEventListener('click', () => {
-                if (activeSongNo < MAX_SUTRA) loadNurpa(activeSongNo + 1);
+                if (activeSongNo < MAX_NURPA) loadNurpa(activeSongNo + 1);
             });
 
             changeAuthorBtn.addEventListener('click', () => {
@@ -549,14 +549,14 @@
             populateIyals(currentAthikaramId);
 
             // Wire up the search bar 'Enter' key
-            document.getElementById('sutra-search-input').addEventListener('keydown', function (e) {
+            document.getElementById('nurpa-search-input').addEventListener('keydown', function (e) {
                 if (e.key === 'Enter') {
                     executeSearch();
                 }
             });
         }
 
-        function findLocationOfSutra(songNo) {
+        function findLocationOfNurpa(songNo) {
             for (let a of tolkappiamData) {
                 for (let i = 0; i < a.iyals.length; i++) {
                     if (songNo >= a.iyals[i].start && songNo <= a.iyals[i].end) {
@@ -568,7 +568,7 @@
         }
 
         // Helper function to format the button/status text
-        function getLabelForSutra(songNo, athikaramId) {
+        function getLabelForNurpa(songNo, athikaramId) {
             if (athikaramId === 1) {
                 return songNo.toString(); // Ezhuthathikaram only needs the global number
             } else if (athikaramId === 2) {
@@ -593,14 +593,14 @@
             if (autoLoadNurpas) populateNurpas();
         }
 
-        function isSafeSutraNumber(songNo) {
-            // Safe zone: Book 1, Book 2, and Book 3 up to sutra 415
+        function isSafeNurpaNumber(songNo) {
+            // Safe zone: Book 1, Book 2, and Book 3 up to nurpa 415
             // After that json data is out of sync with Tamilvu numbering
             return songNo <= 1361;
         }
 
-        function isKuraloviumSutraValid(songNo) {
-            // Only up to "ezhutatikaram", sutra number in kuraloviyam
+        function isKuraloviumNurpaValid(songNo) {
+            // Only up to "ezhutatikaram", nurpa number in kuraloviyam
             // matches with Tamilvu numbering.
             return songNo <= 483;
         }
@@ -613,17 +613,17 @@
                 btn.className = 'nurpa-btn';
 
                 // Set text using the new helper function
-                btn.textContent = getLabelForSutra(i, currentAthikaramId);
+                btn.textContent = getLabelForNurpa(i, currentAthikaramId);
 
                 // Add an explicit data attribute so we can find it easily later
                 btn.dataset.songNo = i;
 
                 // Add native browser tooltip on hover
-                if (typeof sutraDatabase !== 'undefined' && sutraDatabase.length > 0) {
-                    if (isSafeSutraNumber(i)) {
-                        const sutraObj = sutraDatabase.find(s => s.global_number === i);
-                        if (sutraObj) {
-                            btn.title = sutraObj.text;
+                if (typeof nurpaDatabase !== 'undefined' && nurpaDatabase.length > 0) {
+                    if (isSafeNurpaNumber(i)) {
+                        const nurpaObj = nurpaDatabase.find(s => s.global_number === i);
+                        if (nurpaObj) {
+                            btn.title = nurpaObj.text;
                         }
                     }
                 }
@@ -651,7 +651,7 @@
             activeSongNo = songNo;
 
             // 1. Update Dropdowns and Button Highlights (Existing logic)
-            const loc = findLocationOfSutra(songNo);
+            const loc = findLocationOfNurpa(songNo);
             if (loc) {
                 let dropdownsChanged = false;
 
@@ -685,8 +685,8 @@
 
             const kuralLink = document.getElementById('kuraloviyam-link');
             // Kuraloviyam Dynamic Link
-            if (isKuraloviumSutraValid(songNo)) {
-                // Books 1 & 2: Exact match, link directly to the specific sutra
+            if (isKuraloviumNurpaValid(songNo)) {
+                // Books 1 & 2: Exact match, link directly to the specific nurpa
                 kuralLink.href = `https://kuraloviyam.com/tholkappiyam/${songNo}`;
                 kuralLink.style.display = 'inline-block';
             } else {
@@ -696,31 +696,31 @@
 
             // 2. Inject the JSON text into the card
             // Display inline JSON text if available
-            if (typeof sutraDatabase !== 'undefined' && sutraDatabase.length > 0) {
-                // Find the sutra by its dynamically generated global number
-                const sutraObj = sutraDatabase.find(s => s.global_number === parseInt(songNo, 10));
+            if (typeof nurpaDatabase !== 'undefined' && nurpaDatabase.length > 0) {
+                // Find the nurpa by its dynamically generated global number
+                const nurpaObj = nurpaDatabase.find(s => s.global_number === parseInt(songNo, 10));
 
-                if (sutraObj && isSafeSutraNumber(songNo)) {
-                    document.getElementById('sutra-title').textContent = `${sutraObj.adhikaram} - ${sutraObj.iyal} (${sutraObj.local_number})`;
+                if (nurpaObj && isSafeNurpaNumber(songNo)) {
+                    document.getElementById('nurpa-title').textContent = `${nurpaObj.adhikaram} - ${nurpaObj.iyal} (${nurpaObj.local_number})`;
 
                     // Inject Tamil text, category, and English meaning
-                    document.getElementById('sutra-text').innerHTML = `
+                    document.getElementById('nurpa-text').innerHTML = `
                     <div style="white-space: pre-line; margin-bottom: 12px; font-size: 1.1em; color: var(--text-dark);">
-                        ${sutraObj.text}
+                        ${nurpaObj.text}
                     </div>
                     <div style="font-size: 0.9em; color: #4B5563; border-top: 1px dashed #CBD5E1; padding-top: 12px;">
-                        <strong style="color: var(--primary);">${sutraObj.category}</strong><br>
-                        ${sutraObj.meaning}
+                        <strong style="color: var(--primary);">${nurpaObj.category}</strong><br>
+                        ${nurpaObj.meaning}
                     </div>`;
-                    document.getElementById('sutra-display').style.display = 'block';
+                    document.getElementById('nurpa-display').style.display = 'block';
                 } else {
-                    document.getElementById('sutra-display').style.display = 'none';
+                    document.getElementById('nurpa-display').style.display = 'none';
                 }
             }
 
             // 3. Update the status text and next/prev buttons (Existing logic)
             // Update the status text with the formatted label
-            const labelStr = getLabelForSutra(songNo, currentAthikaramId);
+            const labelStr = getLabelForNurpa(songNo, currentAthikaramId);
             currentSelectionText.innerHTML = `தேர்ந்தெடுக்கப்பட்ட நூற்பா: <strong>${labelStr}</strong>
     <a href="#" onclick="openTamilVuPopup(${songNo}, ${currentAthikaramId}); return false;"
        style="margin-left: 15px; color: var(--primary); font-weight: 600; text-decoration: none; border: 1px solid var(--primary); padding: 4px 10px; border-radius: 6px; background-color: #ECFDF5; display: inline-block; font-size: 0.9rem;">
@@ -733,7 +733,7 @@
             }
 
             prevBtn.disabled = (songNo <= 1);
-            nextBtn.disabled = (songNo >= MAX_SUTRA);
+            nextBtn.disabled = (songNo >= MAX_NURPA);
         }
 
         init();
