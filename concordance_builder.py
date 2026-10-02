@@ -6,11 +6,9 @@ from collections import defaultdict
 INPUT_FILE = "tolkappiyam.json"
 OUTPUT_FILE = "concordance.json"
 
-
 def tokenize(text):
     text = unicodedata.normalize("NFC", text)
-    return re.findall(r"\b[\w\u0B80-\u0BFF]+\b", text, re.UNICODE)
-
+    return re.findall(r"[\u0B80-\u0BFF]+", text)
 
 with open(INPUT_FILE, "r", encoding="utf-8") as f:
     corpus = json.load(f)
