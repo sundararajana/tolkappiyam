@@ -1,87 +1,67 @@
-
 import json
+import re
 import unicodedata
 from collections import defaultdict
 
-INPUT = "tolkappiyam.json"
-OUTPUT = "concordance.json"
+INPUT_FILE = "tolkappiyam.json"
+OUTPUT_FILE = "concordance.json"
 
 
 def tokenize(text):
-    """Split text into Unicode letter/mark sequences."""
     text = unicodedata.normalize("NFC", text)
-
-    words = []
-    current = []
-
-    for char in text:
-        category = unicodedata.category(char)
-
-        if category.startswith("L") or category.startswith("M"):
-            current.append(char)
-        else:
-            if current:
-                words.append("".join(current))
-                current = []
-
-    if current:
-        words.append("".join(current))
-
-    return words
+    return re.findall(r"\b[\w\u0B80-\u0BFF]+\b", text, re.UNICODE)
 
 
-def build_concordance(data):
-    index = defaultdict(list)
+with open(INPUT_FILE, "r", encoding="utf-8") as f:
+    corpus = json.load(f)
 
-    global_noorpa = 0
+concordance = defaultdict(list)
 
-    for adhikaaram in data:
-        adhikaaram_name = adhikaaram["adhikaaram"]
+global_noorpa = 0
 
-        for iyal_number, iyal in enumerate(
-            adhikaaram["iyal"], start=1
+paadal_position = 0
+
+for adhikaaram in corpus:
+    for iyal_number, iyal_data in enumerate(adhikaaram["iyal"], start=1):
+        for noorpa_number, noorpa_data in enumerate(
+            iyal_data["noorpa"], start=1
         ):
-            iyal_name = iyal["iyal_name"]
+            global_noorpa += 1
 
-            for noorpa_number, noorpa in enumerate(
-                iyal["noorpa"], start=1
-            ):
-                global_noorpa += 1
+            paadal = unicodedata.normalize(
+                "NFC", noorpa_data["paadal"]
+            )
 
-                original_text = noorpa["paadal"]
+            lines = paadal.splitlines()
 
-                for line_number, line in enumerate(
-                    original_text.splitlines(), start=1
-                ):
-                    words = tokenize(line)
+            for line_number, line in enumerate(lines, start=1):
+                words = tokenize(line)
 
-                    for position, word in enumerate(words):
-                        index[word].append({
-                            "adhikaaram": adhikaaram_name,
-                            "iyal_name": iyal_name,
-                            "iyal": iyal_number,
-                            "noorpa": noorpa_number,
-                            "global_noorpa": global_noorpa,
-                            "line": line_number,
-                            "position": position,
-                            "text": line
-                        })
+                for position, word in enumerate(words):
+                    concordance[word].append({
+                        "adhikaaram": adhikaaram["adhikaaram"],
+                        "iyal_name": iyal_data["iyal_name"],
+                        "iyal": iyal_number,
+                        "noorpa": noorpa_number,
+                        "global_noorpa": global_noorpa,
+                        "line": line_number,
+                        "position": position,
+                        "paadal_position": paadal_position,
+                        "text": paadal
+                    })
 
-    return dict(index)
+                paadal_position += 1
 
-
-with open(INPUT, encoding="utf-8") as f:
-    data = json.load(f)
-
-index = build_concordance(data)
-
-with open(OUTPUT, "w", encoding="utf-8") as f:
+with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
     json.dump(
-        index,
+        concordance,
         f,
         ensure_ascii=False,
         indent=2
     )
 
-print(f"Distinct words: {len(index)}")
-print(f"Total occurrences: {sum(map(len, index.values()))}")
+print(f"Distinct words: {len(concordance)}")
+print(
+    "Total occurrences:",
+    sum(len(v) for v in concordance.values())
+)

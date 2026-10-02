@@ -1,309 +1,273 @@
 <!DOCTYPE html>
 <html lang="ta">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>தொடரடைவு — தொல்காப்பியம்</title>
 
-  <title>தொல்காப்பியம் — தொடரடைவு</title>
-
-  <style>
+<style>
     body {
-      font-family: system-ui, -apple-system, "Noto Sans Tamil",
-                   "Noto Sans", sans-serif;
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 20px;
-      line-height: 1.6;
+        font-family: system-ui, sans-serif;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem;
+        line-height: 1.7;
     }
 
     h1 {
-      text-align: center;
-      margin-bottom: 0.5em;
+        margin-bottom: 0.5rem;
     }
 
-    #stats {
-      text-align: center;
-      color: #666;
-      margin-bottom: 1.5em;
+    button {
+        margin: 0.2rem;
+        padding: 0.35rem 0.6rem;
+        cursor: pointer;
     }
 
-    #letters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-
-    #letters button {
-      font: inherit;
-      min-width: 38px;
-      padding: 5px 8px;
-      cursor: pointer;
-    }
-
-    #wordIndex {
-      column-width: 220px;
-      column-gap: 30px;
+    button.active {
+        font-weight: bold;
     }
 
     .word {
-      break-inside: avoid;
-      display: flex;
-      justify-content: space-between;
-      padding: 2px 4px;
-      cursor: pointer;
-    }
-
-    .word:hover {
-      background: #eee;
-    }
-
-    .count {
-      color: #777;
-      font-size: 0.9em;
-      margin-left: 10px;
-    }
-
-    #occurrences {
-      margin-top: 30px;
+        display: inline-block;
+        margin: 0.2rem 0.4rem 0.2rem 0;
     }
 
     .occurrence {
-      border-top: 1px solid #ddd;
-      padding: 12px 4px;
+        padding: 0.8rem 0;
+        border-bottom: 1px solid #ddd;
     }
 
     .location {
-      color: #666;
-      font-size: 0.9em;
+        margin-bottom: 0.4rem;
+        font-size: 0.9rem;
+        color: #555;
     }
 
-    .context {
-      margin-top: 4px;
-      font-size: 1.1em;
+    .global-number {
+        font-weight: bold;
+        margin-right: 0.3rem;
     }
 
-    .context a {
-      color: inherit;
-      text-decoration: none;
+    .kwic {
+        font-family: serif;
+        font-size: 1.05rem;
+        margin: 0.4rem 0;
     }
 
-    .context a:hover {
-      text-decoration: underline;
+    .kwic mark {
+        font-weight: bold;
     }
 
-    .selected-word {
-      font-weight: bold;
+    .full-text {
+        color: #555;
+        font-family: serif;
     }
 
-    .back {
-      margin-top: 15px;
+    a {
+        color: inherit;
+        text-decoration: none;
     }
 
-    .back a {
-      text-decoration: none;
+    a:hover {
+        text-decoration: underline;
     }
-  </style>
+</style>
 </head>
 
 <body>
 
-  <h1>தொடரடைவு</h1>
+<h1>தொடரடைவு</h1>
 
-  <div id="stats"></div>
+<div id="stats"></div>
 
-  <div id="letters"></div>
+<div id="initials"></div>
 
-  <div id="wordIndex"></div>
+<hr>
 
-  <div id="occurrences"></div>
+<div id="words"></div>
 
-  <script>
-    const SUTRA_BASE =
-      "https://sundararajana.github.io/tolkappiyam/?song_no=";
+<hr>
 
-    let concordance = {};
+<div id="occurrences"></div>
 
-    /*
-     * Tamil alphabetical order.
-     *
-     * Unicode sorting is not the same thing as traditional
-     * Tamil alphabetical ordering, so define the order explicitly.
-     */
-    const tamilOrder = [
-      "அ", "ஆ", "இ", "ஈ", "உ", "ஊ", "எ", "ஏ", "ஐ",
-      "ஒ", "ஓ", "ஔ",
-      "க", "ங", "ச", "ஞ", "ட", "ண", "த", "ந",
-      "ப", "ம", "ய", "ர", "ல", "வ", "ழ", "ள", "ற", "ன"
-    ];
+<script>
+const tamilOrder = [
+    "அ", "ஆ", "இ", "ஈ", "உ", "ஊ", "எ", "ஏ", "ஐ",
+    "ஒ", "ஓ", "ஔ",
+    "க", "ங", "ச", "ஞ", "ட", "ண", "த", "ந",
+    "ப", "ம", "ய", "ர", "ல", "வ", "ழ", "ள", "ற", "ன"
+];
 
-    /*
-     * Get the first Tamil base character.
-     *
-     * For a word beginning with a vowel or consonant, the first
-     * code point is sufficient for the current corpus.
-     */
-    function initial(word) {
-      return [...word][0];
-    }
+const SUTRA_BASE =
+    "https://sundararajana.github.io/tolkappiyam/?song_no=";
 
-    /*
-     * Sort words using Tamil initial order, followed by
-     * Unicode/locale comparison.
-     */
-    function sortWords(words) {
-      return words.sort((a, b) => {
-        const ia = tamilOrder.indexOf(initial(a));
-        const ib = tamilOrder.indexOf(initial(b));
+let concordance = {};
+let currentInitial = null;
+let currentWord = null;
 
-        if (ia !== ib) {
-          return ia - ib;
+
+fetch("concordance.json")
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Failed to load concordance.json");
         }
+        return response.json();
+    })
+    .then(data => {
+        concordance = data;
 
-        return a.localeCompare(b, "ta");
-      });
-    }
+        const wordCount = Object.keys(concordance).length;
+        const occurrenceCount =
+            Object.values(concordance)
+                .reduce((sum, occurrences) => sum + occurrences.length, 0);
 
-    async function loadConcordance() {
-      const response = await fetch("concordance.json");
+        document.getElementById("stats").textContent =
+            `${wordCount} சொற்கள் · ${occurrenceCount} occurrences`;
 
-      if (!response.ok) {
-        throw new Error(
-          `Could not load concordance.json (${response.status})`
-        );
-      }
+        showInitials();
+    })
+    .catch(error => {
+        console.error(error);
+        document.getElementById("stats").textContent =
+            "தொடரடைவுத் தரவை ஏற்ற முடியவில்லை.";
+    });
 
-      concordance = await response.json();
 
-      const words = Object.keys(concordance);
-      const occurrences = words.reduce(
-        (sum, word) => sum + concordance[word].length,
-        0
-      );
+function showInitials() {
+    const container = document.getElementById("initials");
+    container.innerHTML = "";
 
-      document.getElementById("stats").textContent =
-        `${words.length.toLocaleString("ta-IN")} சொற்கள் · ` +
-        `${occurrences.toLocaleString("ta-IN")} பதிவுகள்`;
-
-      buildLetterButtons();
-      showWords(tamilOrder[0]);
-    }
-
-    function buildLetterButtons() {
-      const container = document.getElementById("letters");
-
-      for (const letter of tamilOrder) {
-        const words = Object.keys(concordance)
-          .filter(word => initial(word) === letter);
-
-        if (words.length === 0) {
-          continue;
-        }
-
+    for (const initial of tamilOrder) {
         const button = document.createElement("button");
-        button.textContent = letter;
-        button.title = `${words.length} சொற்கள்`;
+        button.textContent = initial;
 
-        button.addEventListener("click", () => {
-          showWords(letter);
-        });
+        button.onclick = () => {
+            currentInitial = initial;
+            currentWord = null;
+
+            showWords(initial);
+            document.getElementById("occurrences").innerHTML = "";
+        };
 
         container.appendChild(button);
-      }
     }
+}
 
-    function showWords(letter) {
-      const container = document.getElementById("wordIndex");
-      const occurrences = document.getElementById("occurrences");
 
-      occurrences.innerHTML = "";
+function showWords(initial) {
+    const container = document.getElementById("words");
+    container.innerHTML = "";
 
-      let words = Object.keys(concordance)
-        .filter(word => initial(word) === letter);
+    const words = Object.keys(concordance)
+        .filter(word => word.startsWith(initial))
+        .sort((a, b) => a.localeCompare(b, "ta"));
 
-      words = sortWords(words);
+    for (const word of words) {
+        const button = document.createElement("button");
+        button.className = "word";
 
-      container.innerHTML = "";
+        button.textContent =
+            `${word} (${concordance[word].length})`;
 
-      for (const word of words) {
-        const div = document.createElement("div");
-        div.className = "word";
+        button.onclick = () => {
+            currentWord = word;
+            showOccurrences(word);
+        };
 
-        const wordSpan = document.createElement("span");
-        wordSpan.textContent = word;
-
-        const countSpan = document.createElement("span");
-        countSpan.className = "count";
-        countSpan.textContent =
-          concordance[word].length.toLocaleString("ta-IN");
-
-        div.appendChild(wordSpan);
-        div.appendChild(countSpan);
-
-        div.addEventListener("click", () => {
-          showOccurrences(word);
-        });
-
-        container.appendChild(div);
-      }
+        container.appendChild(button);
     }
+}
 
-    function showOccurrences(word) {
-      const container = document.getElementById("occurrences");
 
-      container.innerHTML = "";
+function showOccurrences(word) {
+    const container = document.getElementById("occurrences");
+    container.innerHTML = "";
 
-      const heading = document.createElement("h2");
-      heading.textContent =
-        `${word} — ${concordance[word].length.toLocaleString("ta-IN")} இடங்கள்`;
+    const occurrences = concordance[word];
 
-      container.appendChild(heading);
-
-      for (const occurrence of concordance[word]) {
+    for (const occurrence of occurrences) {
         const div = document.createElement("div");
         div.className = "occurrence";
-
-        const location = document.createElement("div");
-        location.className = "location";
-
-        location.textContent =
-          `${occurrence.adhikaaram} · ` +
-          `${occurrence.iyal_name} · ` +
-          `இயல் ${occurrence.iyal} · ` +
-          `நூற்பா ${occurrence.noorpa}`;
-
-        div.appendChild(location);
-
-        const context = document.createElement("div");
-        context.className = "context";
 
         const link = document.createElement("a");
 
         link.href =
-          SUTRA_BASE + encodeURIComponent(occurrence.global_noorpa);
+            SUTRA_BASE +
+            encodeURIComponent(occurrence.global_noorpa);
 
-        link.textContent = occurrence.text;
+        link.target = "_blank";
 
-        context.appendChild(link);
-        div.appendChild(context);
+        const location = document.createElement("div");
+        location.className = "location";
 
+        location.innerHTML =
+            `<span class="global-number">${occurrence.global_noorpa}</span>` +
+            ` · ${occurrence.adhikaaram}` +
+            ` · ${occurrence.iyal_name}` +
+            ` · இயல் ${occurrence.iyal}` +
+            ` · நூற்பா ${occurrence.noorpa}`;
+
+        link.appendChild(location);
+
+
+        const kwic = document.createElement("div");
+        kwic.className = "kwic";
+
+        kwic.innerHTML = makeKwic(
+            occurrence.text,
+            word,
+            occurrence.paadal_position
+        );
+
+        link.appendChild(kwic);
+
+
+        const fullText = document.createElement("div");
+        fullText.className = "full-text";
+
+        fullText.textContent = occurrence.text;
+
+        link.appendChild(fullText);
+
+        div.appendChild(link);
         container.appendChild(div);
-      }
-
-      container.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
     }
+}
 
-    loadConcordance().catch(error => {
-      console.error(error);
 
-      document.getElementById("stats").textContent =
-        "தொடரடைவுத் தரவை ஏற்ற முடியவில்லை.";
-    });
-  </script>
+function makeKwic(text, word, position) {
+    const words = tokenize(text);
+
+    const context = 5;
+
+    const start = Math.max(0, position - context);
+    const end = Math.min(words.length, position + context + 1);
+
+    const before = words.slice(start, position).join(" ");
+    const after = words.slice(position + 1, end).join(" ");
+
+    return (
+        `${start > 0 ? "... " : ""}` +
+        `${escapeHtml(before)} ` +
+        `<mark>${escapeHtml(words[position])}</mark> ` +
+        `${escapeHtml(after)}` +
+        `${end < words.length ? " ..." : ""}`
+    );
+}
+
+function tokenize(text) {
+    return text.normalize("NFC")
+        .match(/[\u0B80-\u0BFF]+/g) || [];
+}
+
+
+function escapeHtml(text) {
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
+</script>
 
 </body>
 </html>
