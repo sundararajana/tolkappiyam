@@ -188,6 +188,11 @@ function showWords(initial) {
 
         container.appendChild(button);
     }
+
+    document.getElementById("words").scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
 }
 
 
@@ -245,6 +250,11 @@ function showOccurrences(word) {
         div.appendChild(link);
         container.appendChild(div);
     }
+
+    document.getElementById("occurrences").scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
 }
 
 
