@@ -594,9 +594,7 @@
         }
 
         function isSafeNurpaNumber(songNo) {
-            // Safe zone: Book 1, Book 2, and Book 3 up to nurpa 415
-            // After that json data is out of sync with Tamilvu numbering
-            return songNo <= 1361;
+            return songNo <= 1602;
         }
 
         function isKuraloviumNurpaValid(songNo) {
