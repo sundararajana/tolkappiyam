@@ -137,20 +137,6 @@
             margin: 0 auto;
         }
 
-        /* Subtle Info Banner */
-        .info-banner {
-            background-color: #EFF6FF;
-            border: 1px solid #BFDBFE;
-            color: #1D4ED8;
-            padding: 12px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
         .status-text {
             font-weight: 600;
             color: var(--text-main);
@@ -282,10 +268,6 @@
             </div>
         </div>
 
-        <div class="info-banner">
-            <span><strong>இணைப்புத் திரை முறை:</strong> நூற்பா எண்களை அழுத்தினால், உரை விளக்கங்கள் தனியொரு புதிய திரையில் (New Tab) திறக்கப்படும்.</span>
-        </div>
-
         <div id="current-selection-text" class="status-text">நூற்பாவைத் தேர்ந்தெடுக்கவும்...</div>
 
         <!-- Dynamic Kuraloviyam Link -->
@@ -299,6 +281,7 @@
         <div id="nurpa-display" class="nurpa-card">
           <h4 id="nurpa-title" class="nurpa-title"></h4>
           <p id="nurpa-text" class="nurpa-text"></p>
+          <div id="tamilvu-iframe-container" class="tamilvu-iframe-wrapper" style="width: 100%"></div>
         </div>
 
         <div id="nurpa-container" class="nurpa-grid">
@@ -479,18 +462,20 @@
 
                     // Loop through the 3 Adhikarams
                     data.forEach(adhikaramObj => {
+                        let inAdhikaramCounter = 1;
                         const adhikaramName = adhikaramObj.adhikaaram;
 
                         // Loop through the Iyals in each Adhikaram
                         adhikaramObj.iyal.forEach(iyalObj => {
                             const iyalName = iyalObj.iyal_name;
-                            let localCounter = 1; // Resets for each Iyal
+                            let inIyalCounter = 1; // Resets for each Iyal
 
                             // Loop through the Noorpas
                             iyalObj.noorpa.forEach(noorpaObj => {
                                 nurpaDatabase.push({
                                     global_number: globalCounter,
-                                    local_number: localCounter,
+                                    in_adhikaram_number: inAdhikaramCounter,
+                                    in_iyal_number: inIyalCounter,
                                     adhikaram: adhikaramName,
                                     iyal: iyalName,
                                     text: noorpaObj.paadal,
@@ -498,7 +483,8 @@
                                     meaning: noorpaObj.vilakkam.paadal_meaning
                                 });
                                 globalCounter++;
-                                localCounter++;
+                                inAdhikaramCounter++;
+                                inIyalCounter++;
                             });
                         });
                     });
@@ -542,7 +528,7 @@
             });
 
             changeAuthorBtn.addEventListener('click', () => {
-                alert("தமிழ் இணையக் கல்விக்கழகத்தின் முதன்மைப் பக்கம் புதிய திரையில் திறக்கப்படும். அங்கு ஒரு நூற்பாவைச் சொடுக்கி, உங்கள் புதிய உரையாசிரியரைத் தேர்ந்தெடுத்த பின், இங்கு திரும்பி தொடர்ந்து படிக்கலாம்.");
+                alert("தமிழ் இணையக் கல்விக்கழகத்தின் முதன்மைப் பக்கம் புதிய திரையில் திறக்கப்படும். அங்கு உங்கள் புதிய உரையாசிரியரைத் தேர்ந்தெடுத்த பின், இங்கு திரும்பி தொடர்ந்து படிக்கலாம்.");
                 window.open("https://www.tamilvu.org/library/l0100/html/l0100ind.htm?book_id=1", "TamilvuReader");
             });
 
@@ -645,7 +631,7 @@
             }
         }
 
-        function loadNurpa(songNo, openTab = true) {
+        function loadNurpa(songNo, openTab = false) {
             activeSongNo = songNo;
 
             // 1. Update Dropdowns and Button Highlights (Existing logic)
@@ -699,7 +685,7 @@
                 const nurpaObj = nurpaDatabase.find(s => s.global_number === parseInt(songNo, 10));
 
                 if (nurpaObj && isSafeNurpaNumber(songNo)) {
-                    document.getElementById('nurpa-title').textContent = `${nurpaObj.adhikaram} - ${nurpaObj.iyal} (${nurpaObj.local_number})`;
+                    document.getElementById('nurpa-title').textContent = `${nurpaObj.adhikaram} - ${nurpaObj.iyal} (${nurpaObj.in_iyal_number})`;
 
                     // Inject Tamil text, category, and English meaning
                     document.getElementById('nurpa-text').innerHTML = `
@@ -710,6 +696,13 @@
                         <strong style="color: var(--primary);">${nurpaObj.category}</strong><br>
                         ${nurpaObj.meaning}
                     </div>`;
+
+                    // Build and inject the TamilVU inline iframe dynamically
+                    const iframeUrl = `https://www.tamilvu.org/slet/l0100/l0100noo.jsp?song_no=${nurpaObj.in_adhikaram_number}&head_id=${currentAthikaramId}`;
+                    document.getElementById('tamilvu-iframe-container').innerHTML = `
+                        <iframe src="${iframeUrl}" style="width: 100%; height: 350px; border: 1px solid #ccc; border-radius: 4px;"></iframe>
+                    `;
+
                     document.getElementById('nurpa-display').style.display = 'block';
                 } else {
                     document.getElementById('nurpa-display').style.display = 'none';
@@ -722,7 +715,7 @@
             currentSelectionText.innerHTML = `தேர்ந்தெடுக்கப்பட்ட நூற்பா: <strong>${labelStr}</strong>
     <a href="#" onclick="openTamilVuPopup(${songNo}, ${currentAthikaramId}); return false;"
        style="margin-left: 15px; color: var(--primary); font-weight: 600; text-decoration: none; border: 1px solid var(--primary); padding: 4px 10px; border-radius: 6px; background-color: #ECFDF5; display: inline-block; font-size: 0.9rem;">
-       உரையைத் திறக்க ↗
+       தனியொரு புதிய திரையில் (New Tab) Tamilvu உரையைத் திறக்க ↗
     </a>`;
 
             // 4. Trigger the Companion Tab
