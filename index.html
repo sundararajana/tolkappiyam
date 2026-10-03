@@ -207,6 +207,18 @@
             white-space: pre-wrap; /* This makes the \n in your JSON render as actual line breaks! */
         }
 
+        .tamilvu-iframe-wrapper {
+            width: 100%;
+        }
+
+        .tamilvu-iframe-wrapper iframe {
+            display: block;
+            width: 100%;
+            height: 350px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
     </style>
 </head>
 <body>
@@ -282,7 +294,7 @@
           <h4 id="nurpa-title" class="nurpa-title"></h4>
           <p id="nurpa-text" class="nurpa-text"></p>
           <hr>
-          <div id="tamilvu-iframe-container" class="tamilvu-iframe-wrapper" style="width: 100%"></div>
+          <div id="tamilvu-iframe-container" class="tamilvu-iframe-wrapper" ></div>
         </div>
 
         <div id="nurpa-container" class="nurpa-grid">
@@ -707,7 +719,7 @@
                     // Build and inject the TamilVU inline iframe dynamically
                     const iframeUrl = `https://www.tamilvu.org/slet/l0100/l0100noo.jsp?song_no=${nurpaObj.in_adhikaram_number}&head_id=${currentAthikaramId}`;
                     document.getElementById('tamilvu-iframe-container').innerHTML = `
-                        <iframe src="${iframeUrl}" style="width: 100%; height: 350px; border: 1px solid #ccc; border-radius: 4px;"></iframe>
+                        <iframe src="${iframeUrl}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
                     `;
 
                     document.getElementById('nurpa-display').style.display = 'block';
