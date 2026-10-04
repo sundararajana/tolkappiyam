@@ -225,6 +225,19 @@
             font-weight: 500;
         }
 
+        .external-nurpa-link {
+           margin-left: 15px;
+           color: var(--primary);
+           font-weight: 600;
+           text-decoration: none;
+           border: 1px solid var(--primary);
+           padding: 4px 10px;
+           border-radius: 6px;
+           background-color: #ECFDF5;
+           display: inline-block;
+           font-size: 0.9rem;
+        }
+
     </style>
 </head>
 <body>
@@ -290,7 +303,7 @@
 
         <!-- Dynamic Kuraloviyam Link -->
         <div style="margin-bottom: 20px;">
-        <a id="kuraloviyam-link" href="#" target="_blank" style="display: none; color: var(--primary); text-decoration: none; font-weight: 600; background-color: #EEF2FF; padding: 8px 16px; border-radius: 6px; border: 1px solid #C7D2FE;">
+        <a id="kuraloviyam-link" style="display: none" class="external-nurpa-link" href="#" target="_blank">
             📖 குறளோவியம் தளத்தில் எளிய உரை படிக்க ↗
         </a>
         </div>
@@ -645,7 +658,7 @@
             }
         }
 
-        function openTamilVuPopup(songNo, athikaramId) {
+        function openTamilvu(songNo, athikaramId) {
             const targetUrl = `https://www.tamilvu.org/slet/l0100/l0100uri.jsp?song_no=${songNo}&book_id=1&head_id=${currentAthikaramId}`;
 
             if (!readerWindow || readerWindow.closed) {
@@ -746,14 +759,13 @@
             currentSelectionText.innerHTML = `
     <button id="close-nurpa-display" onClick = "closeNurpaDisplay()">&times;</button>
     தேர்ந்தெடுக்கப்பட்ட நூற்பா: <strong>${labelStr}</strong>
-    <a href="#" onclick="openTamilVuPopup(${songNo}, ${currentAthikaramId}); return false;"
-       style="margin-left: 15px; color: var(--primary); font-weight: 600; text-decoration: none; border: 1px solid var(--primary); padding: 4px 10px; border-radius: 6px; background-color: #ECFDF5; display: inline-block; font-size: 0.9rem;">
+    <a href="#" class="external-nurpa-link" onclick="openTamilvu(${songNo}, ${currentAthikaramId}); return false;">
        தமிழ் இணையக் கல்விக்கழக தளத்தில் உரையை படிக்க ↗
     </a>`;
 
             // 4. Trigger the Companion Tab
             if (openTab) {
-                openTamilVuPopup(songNo, currentAthikaramId);
+                openTamilvu(songNo, currentAthikaramId);
             }
 
             prevBtn.disabled = (songNo <= 1);
