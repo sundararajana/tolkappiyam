@@ -301,12 +301,13 @@
 
         <div id="current-selection-text" class="status-text">நூற்பாவைத் தேர்ந்தெடுக்கவும்...</div>
 
-        <!-- Dynamic Kuraloviyam Link -->
-        <div style="margin-bottom: 20px;">
-        <a id="kuraloviyam-link" style="display: none" class="external-nurpa-link" href="#" target="KuraloviyamReader">
+        <a href="#" id="kuraloviyam-nurpa-link" style="display: none" class="external-nurpa-link" onclick="openKuraloviyam(); return false;">
             📖 குறளோவியம் தளத்தில் எளிய உரை படிக்க ↗
         </a>
-        </div>
+
+        <a href="#" id="tamilvu-nurpa-link" style="display:none" class="external-nurpa-link" onclick="openTamilvu(); return false;">
+            தமிழ் இணையக் கல்விக்கழக தளத்தில் உரையை படிக்க ↗
+        </a>
 
         <!-- The container where the nurpa text will appear -->
         <div id="nurpa-display" class="nurpa-card">
@@ -415,12 +416,15 @@
         const prevBtn = document.getElementById('prev-btn');
         const nextBtn = document.getElementById('next-btn');
         const currentSelectionText = document.getElementById('current-selection-text');
+        const kuraloviyamNurpaLink = document.getElementById('kuraloviyam-nurpa-link');
+        const tamilvuNurpaLink = document.getElementById('tamilvu-nurpa-link');
         const changeAuthorBtn = document.getElementById('change-author-btn');
 
         let currentAthikaramId = tolkappiamData[0].id;
         let currentIyal = tolkappiamData[0].iyals[0];
         let activeSongNo = null;
-        let readerWindow = null;
+        let kuraloviyamReaderWindow = null;
+        let tamilvuReaderWindow = null;
 
         let nurpaDatabase = [];
 
@@ -658,21 +662,31 @@
             }
         }
 
-        function openTamilvu(songNo, athikaramId) {
-            const targetUrl = `https://www.tamilvu.org/slet/l0100/l0100uri.jsp?song_no=${songNo}&book_id=1&head_id=${currentAthikaramId}`;
-
-            if (!readerWindow || readerWindow.closed) {
-                readerWindow = window.open(targetUrl, "TamilvuReader");
+        function openKuraloviyam() {
+            const targetUrl = `https://kuraloviyam.com/tholkappiyam/${activeSongNo}`;
+            if (!kuraloviyamReaderWindow || kuraloviyamReaderWindow.closed) {
+                kuraloviyamReaderWindow = window.open(targetUrl, "KuraloviyamTolkappiyamReader");
             } else {
-                readerWindow.location.href = targetUrl;
-                readerWindow.focus();
+                kuraloviyamReaderWindow.location.href = targetUrl;
+                kuraloviyamReaderWindow.focus();
+            }
+        }
+
+        function openTamilvu() {
+            const targetUrl = `https://www.tamilvu.org/slet/l0100/l0100uri.jsp?song_no=${activeSongNo}&book_id=1&head_id=${currentAthikaramId}`;
+
+            if (!tamilvuReaderWindow || tamilvuReaderWindow.closed) {
+                tamilvuReaderWindow = window.open(targetUrl, "TamilvuTolkappiyamReader");
+            } else {
+                tamilvuReaderWindow.location.href = targetUrl;
+                tamilvuReaderWindow.focus();
             }
         }
 
         function closeNurpaDisplay() {
             currentSelectionText.innerHTML = '';
-            document.getElementById('nurpa-display').style.display = 'none';
-            document.getElementById('kuraloviyam-link').style.display = 'none';
+            kuraloviyamNurpaLink.style.display = 'none';
+            tamilvuNurpaLink.style.display = 'none';
         }
 
         function loadNurpa(songNo, openTab = false) {
@@ -711,15 +725,12 @@
                 }
             }
 
-            const kuralLink = document.getElementById('kuraloviyam-link');
-            // Kuraloviyam Dynamic Link
+            // Kuraloviyam Link
             if (isKuraloviumNurpaValid(songNo)) {
-                // Books 1 & 2: Exact match, link directly to the specific nurpa
-                kuralLink.href = `https://kuraloviyam.com/tholkappiyam/${songNo}`;
-                kuralLink.style.display = 'inline-block';
+                kuraloviyamNurpaLink.style.display = 'inline-block';
             } else {
-                // Book 3: Out of sync, so we hide the specific link
-                kuralLink.style.display = 'none';
+                // Kuraloviyam is out of sync with Tamilvu, so we hide the Nurpa link
+                kuraloviyamNurpaLink.style.display = 'none';
             }
 
             // 2. Inject the JSON text into the card
@@ -753,19 +764,18 @@
                 }
             }
 
-            // 3. Update the status text and next/prev buttons (Existing logic)
+            // 3. Enable tamilvu nurpa link, update the status text and next/prev buttons (Existing logic)
             // Update the status text with the formatted label
+            
+            tamilvuNurpaLink.style.display = "inline-block";
             const labelStr = getLabelForNurpa(songNo, currentAthikaramId);
             currentSelectionText.innerHTML = `
     <button id="close-nurpa-display" onClick = "closeNurpaDisplay()">&times;</button>
-    தேர்ந்தெடுக்கப்பட்ட நூற்பா: <strong>${labelStr}</strong>
-    <a href="#" class="external-nurpa-link" onclick="openTamilvu(${songNo}, ${currentAthikaramId}); return false;">
-       தமிழ் இணையக் கல்விக்கழக தளத்தில் உரையை படிக்க ↗
-    </a>`;
+    தேர்ந்தெடுக்கப்பட்ட நூற்பா: <strong>${labelStr}</strong>`;
 
             // 4. Trigger the Companion Tab
             if (openTab) {
-                openTamilvu(songNo, currentAthikaramId);
+                openTamilvu();
             }
 
             prevBtn.disabled = (songNo <= 1);
