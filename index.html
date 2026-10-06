@@ -733,11 +733,14 @@
                     </div>`;
 
                     // Build and inject the TamilVU inline iframe dynamically
+                    /*
+                    // tamilvu site is highly flaky. Shows NPE or certicate invalid etc. Embedding content in iframe is a bad idea.
+
                     const iframeUrl = `https://www.tamilvu.org/slet/l0100/l0100noo.jsp?song_no=${nurpaObj.in_adhikaram_number}&head_id=${currentAthikaramId}`;
                     document.getElementById('tamilvu-iframe-container').innerHTML = `
                         <iframe src="${iframeUrl}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
                     `;
-
+                    */
                     document.getElementById('nurpa-display').style.display = 'block';
                 } else {
                     document.getElementById('nurpa-display').style.display = 'none';
