@@ -4,26 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>தொல்காப்பியம் உரை தேடி</title>
+    <link rel="stylesheet" href="common.css">
     <style>
-        :root {
-            --primary: #4F46E5;
-            --primary-hover: #4338CA;
-            --bg-color: #F9FAFB;
-            --surface: #FFFFFF;
-            --border: #E5E7EB;
-            --text-main: #111827;
-            --text-muted: #6B7280;
-        }
-
-        body, html {
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-        }
-
         /* Top Navigation Bar */
         .top-nav {
             background-color: var(--surface);
@@ -44,13 +26,6 @@
             display: flex;
             align-items: center;
             gap: 20px;
-        }
-
-        h1 {
-            font-size: 1.25rem;
-            margin: 0;
-            color: var(--primary);
-            white-space: nowrap;
         }
 
         /* Dropdown Controls */
@@ -219,12 +194,6 @@
             border-radius: 4px;
         }
 
-        .external-link {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-        }
-
         .external-nurpa-link, .concordance-link {
            margin-left: 15px;
            color: var(--primary);
@@ -279,10 +248,7 @@
             <div style="display: flex; gap: 10px;">
                 <input type="text" id="nurpa-search-input" placeholder="நூற்பாக்களில் தேட... (Search text or meaning)"
                     style="flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1rem;">
-                <button onclick="executeSearch()"
-                        style="padding: 10px 20px; background-color: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
-                    தேடு
-                </button>
+                <button class="search-button" onclick="executeSearch()">தேடு</button>
             </div>
 
             <!-- Hidden table that appears when there are results -->
