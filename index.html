@@ -240,7 +240,7 @@
 
         <!-- concordance link -->
         <div class="concordance">
-            <span><strong><a href="concordance.html" class="concordance-link" target="_blank">தொல்காப்பியத் தொடரடைவு (concordance)</a></strong></span>
+            <span><strong><a href="concordance.html" class="concordance-link" target="TolkappiyamConcordancePage">தொல்காப்பியத் தொடரடைவு (concordance)</a></strong></span>
         </div>
 
         <!-- nurpa text search -->
@@ -344,6 +344,10 @@
     </main>
 
     <script>
+        if (!window.name) {
+            window.name = "TolkappiyamMainPage";
+        }
+
         const tolkappiamData = [
             {
                 id: 1,
