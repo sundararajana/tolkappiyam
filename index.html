@@ -272,6 +272,10 @@
                 📖 குறளோவியம் தளத்தில் எளிய உரை படிக்க ↗
             </a>
 
+            <a href="#" id="cict-nurpa-link" style="display: none" class="external-nurpa-link" onclick="openCICT(); return false;">
+                செம்மொழித் தமிழாய்வு மத்திய நிறுவன தளத்தில் உரையை படிக்க ↗
+            </a>
+
             <a href="#" id="tamilvu-nurpa-link" style="display:none" class="external-nurpa-link" onclick="openTamilvu(); return false;">
                 தமிழ் இணையக் கல்விக்கழக தளத்தில் உரையை படிக்க ↗
             </a>
@@ -398,15 +402,22 @@
         const currentSelectionText = document.getElementById('current-selection-text');
         const kuraloviyamNurpaLink = document.getElementById('kuraloviyam-nurpa-link');
         const tamilvuNurpaLink = document.getElementById('tamilvu-nurpa-link');
+        const cictNurpaLink = document.getElementById('cict-nurpa-link');
         const changeAuthorBtn = document.getElementById('change-author-btn');
 
+        // Current athikaram selected and shown on screen in drop down.
         let currentAthikaramId = tolkappiamData[0].id;
+        // Current iyal whose nurpa numbers are shown as buttons on screen
         let currentIyal = tolkappiamData[0].iyals[0];
+        // Currently shown nurpa on screen. Note that the nurpa may be from
+        // a different athikaram and/or iyal than the current ones.
         let activeSongNo = null;
         let kuraloviyamReaderWindow = null;
         let tamilvuReaderWindow = null;
-
+        // used for search to walk through all nurpas for match
         let nurpaDatabase = [];
+        // used to find a particular nurpa given its global number
+        let numberToNurpa = new Map();
 
         function executeSearch() {
             const inputField = document.getElementById('nurpa-search-input');
@@ -482,13 +493,13 @@
                 .then(data => {
                     let globalCounter = 1;
 
-                    // Loop through the 3 Adhikarams
-                    data.forEach(adhikaramObj => {
-                        let inAdhikaramCounter = 1;
-                        const adhikaramName = adhikaramObj.adhikaaram;
+                    // Loop through the 3 Athikarams
+                    data.forEach(athikaramObj => {
+                        let inAthikaramCounter = 1;
+                        const athikaramName = athikaramObj.adhikaaram;
 
-                        // Loop through the Iyals in each Adhikaram
-                        adhikaramObj.iyal.forEach(iyalObj => {
+                        // Loop through the Iyals in each Athikaram
+                        athikaramObj.iyal.forEach(iyalObj => {
                             const iyalName = iyalObj.iyal_name;
                             let inIyalCounter = 1; // Resets for each Iyal
 
@@ -496,19 +507,23 @@
                             iyalObj.noorpa.forEach(noorpaObj => {
                                 nurpaDatabase.push({
                                     global_number: globalCounter,
-                                    in_adhikaram_number: inAdhikaramCounter,
+                                    in_athikaram_number: inAthikaramCounter,
                                     in_iyal_number: inIyalCounter,
-                                    adhikaram: adhikaramName,
+                                    athikaram: athikaramName,
                                     iyal: iyalName,
                                     text: noorpaObj.paadal,
                                     category: noorpaObj.vilakkam.paadal_category,
                                     meaning: noorpaObj.vilakkam.paadal_meaning
                                 });
                                 globalCounter++;
-                                inAdhikaramCounter++;
+                                inAthikaramCounter++;
                                 inIyalCounter++;
                             });
                         });
+                    });
+
+                    nurpaDatabase.forEach((value, _) => {
+                        numberToNurpa.set(value.global_number, value);
                     });
 
                     populateNurpas();
@@ -567,8 +582,15 @@
         function findLocationOfNurpa(songNo) {
             for (let a of tolkappiamData) {
                 for (let i = 0; i < a.iyals.length; i++) {
-                    if (songNo >= a.iyals[i].start && songNo <= a.iyals[i].end) {
-                        return { athikaramId: a.id, iyalIndex: i };
+                    const iyalStart = a.iyals[i].start;
+                    const iyalEnd = a.iyals[i].end;
+                    if (songNo >= iyalStart && songNo <= iyalEnd) {
+                        return { 
+                            athikaramId: a.id,
+                            iyalIndex: i, 
+                            iyalStart: iyalStart,
+                            iyalEnd: iyalEnd
+                        };
                     }
                 }
             }
@@ -625,12 +647,10 @@
                 btn.dataset.songNo = i;
 
                 // Add native browser tooltip on hover
-                if (typeof nurpaDatabase !== 'undefined' && nurpaDatabase.length > 0) {
-                    if (isSafeNurpaNumber(i)) {
-                        const nurpaObj = nurpaDatabase.find(s => s.global_number === i);
-                        if (nurpaObj) {
-                            btn.title = nurpaObj.text;
-                        }
+                if (isSafeNurpaNumber(i)) {
+                    const nurpaObj = numberToNurpa.get(i);
+                    if (nurpaObj) {
+                        btn.title = nurpaObj.text;
                     }
                 }
 
@@ -643,17 +663,22 @@
         }
 
         function openKuraloviyam() {
-            const targetUrl = `https://kuraloviyam.com/tholkappiyam/${activeSongNo}`;
-            if (!kuraloviyamReaderWindow || kuraloviyamReaderWindow.closed) {
-                kuraloviyamReaderWindow = window.open(targetUrl, "KuraloviyamTolkappiyamReader");
-            } else {
-                kuraloviyamReaderWindow.location.href = targetUrl;
-                kuraloviyamReaderWindow.focus();
+            if (activeSong) {
+                const targetUrl = `https://kuraloviyam.com/tholkappiyam/${activeSong}`;
+                if (!kuraloviyamReaderWindow || kuraloviyamReaderWindow.closed) {
+                    kuraloviyamReaderWindow = window.open(targetUrl, "KuraloviyamTolkappiyamReader");
+                } else {
+                    kuraloviyamReaderWindow.location.href = targetUrl;
+                    kuraloviyamReaderWindow.focus();
+                }
             }
         }
 
         function openTamilvu() {
-            const targetUrl = `https://www.tamilvu.org/slet/l0100/l0100uri.jsp?song_no=${activeSongNo}&book_id=1&head_id=${currentAthikaramId}`;
+            const nurpaLoc = findLocationOfNurpa(activeSongNo);
+            const activeSongAthikaram = nurpaLoc.athikaramId;
+            const targetUrl = `https://www.tamilvu.org/slet/l0100/l0100uri.jsp?song_no=` + 
+                `${activeSongNo}&book_id=1&head_id=${activeSongAthikaram}`;
 
             if (!tamilvuReaderWindow || tamilvuReaderWindow.closed) {
                 tamilvuReaderWindow = window.open(targetUrl, "TamilvuTolkappiyamReader");
@@ -661,6 +686,18 @@
                 tamilvuReaderWindow.location.href = targetUrl;
                 tamilvuReaderWindow.focus();
             }
+        }
+
+        function openCICT() {
+            const nurpaLoc = findLocationOfNurpa(activeSongNo);
+            const activeSongAthikaram = nurpaLoc.athikaramId;
+            // This is only approximately correct as the total nurpas per CICT is 1607 and not 1602.
+            // All nurpas in a iyal are shown in a single page. The page CICT page would scroll near
+            // to the active nurpa.
+            const nurpaWithinIyal = activeSongNo - nurpaLoc.iyalStart;
+            const targetUrl = `https://cictdl.github.io/Tolkappiyam/#` +
+                    `${activeSongAthikaram - 1}/${nurpaLoc.iyalIndex}/${nurpaWithinIyal}`;
+                window.open(targetUrl, "_blank");
         }
 
         function closeNurpaDisplay() {
@@ -715,42 +752,41 @@
 
             // 2. Inject the JSON text into the card
             // Display inline JSON text if available
-            if (typeof nurpaDatabase !== 'undefined' && nurpaDatabase.length > 0) {
-                // Find the nurpa by its dynamically generated global number
-                const nurpaObj = nurpaDatabase.find(s => s.global_number === parseInt(songNo, 10));
+            // Find the nurpa by its dynamically generated global number
+            const nurpaObj = numberToNurpa.get(parseInt(songNo, 10));
 
-                if (nurpaObj && isSafeNurpaNumber(songNo)) {
-                    document.getElementById('nurpa-title').textContent = `${nurpaObj.adhikaram} - ${nurpaObj.iyal} (${nurpaObj.in_iyal_number})`;
+            if (nurpaObj && isSafeNurpaNumber(songNo)) {
+                document.getElementById('nurpa-title').textContent = `${nurpaObj.athikaram} - ${nurpaObj.iyal} (${nurpaObj.in_iyal_number})`;
 
-                    // Inject Tamil text, category, and English meaning
-                    document.getElementById('nurpa-text').innerHTML = `
-                    <div style="white-space: pre-line; margin-bottom: 12px; font-size: 1.1em; color: var(--text-dark);">
-                        ${nurpaObj.text}
-                    </div>
-                    <div style="font-size: 0.9em; color: #4B5563; border-top: 1px dashed #CBD5E1; padding-top: 12px;">
-                        <strong style="color: var(--primary);">${nurpaObj.category}</strong><br>
-                        ${nurpaObj.meaning}
-                    </div>`;
+                // Inject Tamil text, category, and English meaning
+                document.getElementById('nurpa-text').innerHTML = `
+                <div style="white-space: pre-line; margin-bottom: 12px; font-size: 1.1em; color: var(--text-dark);">
+                    ${nurpaObj.text}
+                </div>
+                <div style="font-size: 0.9em; color: #4B5563; border-top: 1px dashed #CBD5E1; padding-top: 12px;">
+                    <strong style="color: var(--primary);">${nurpaObj.category}</strong><br>
+                    ${nurpaObj.meaning}
+                </div>`;
 
-                    // Build and inject the TamilVU inline iframe dynamically
-                    /*
-                    // tamilvu site is highly flaky. Shows NPE or certicate invalid etc. Embedding content in iframe is a bad idea.
+                // Build and inject the TamilVU inline iframe dynamically
+                /*
+                // tamilvu site is highly flaky. Shows NPE or certicate invalid etc. Embedding content in iframe is a bad idea.
 
-                    const iframeUrl = `https://www.tamilvu.org/slet/l0100/l0100noo.jsp?song_no=${nurpaObj.in_adhikaram_number}&head_id=${currentAthikaramId}`;
-                    document.getElementById('tamilvu-iframe-container').innerHTML = `
-                        <iframe src="${iframeUrl}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-                    `;
-                    */
-                    document.getElementById('nurpa-display').style.display = 'block';
-                } else {
-                    document.getElementById('nurpa-display').style.display = 'none';
-                }
+                const iframeUrl = `https://www.tamilvu.org/slet/l0100/l0100noo.jsp?song_no=${nurpaObj.in_athikaram_number}&head_id=${currentAthikaramId}`;
+                document.getElementById('tamilvu-iframe-container').innerHTML = `
+                    <iframe src="${iframeUrl}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                `;
+                */
+                document.getElementById('nurpa-display').style.display = 'block';
+            } else {
+                document.getElementById('nurpa-display').style.display = 'none';
             }
 
             // 3. Enable tamilvu nurpa link, update the status text and next/prev buttons (Existing logic)
             // Update the status text with the formatted label
             
             tamilvuNurpaLink.style.display = "inline-block";
+            cictNurpaLink.style.display = 'inline-block';
             const labelStr = getLabelForNurpa(songNo, currentAthikaramId);
             currentSelectionText.innerHTML = `
     <button id="close-nurpa-display" onClick = "closeNurpaDisplay()">&times;</button>
