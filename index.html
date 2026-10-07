@@ -663,14 +663,12 @@
         }
 
         function openKuraloviyam() {
-            if (activeSong) {
-                const targetUrl = `https://kuraloviyam.com/tholkappiyam/${activeSong}`;
-                if (!kuraloviyamReaderWindow || kuraloviyamReaderWindow.closed) {
-                    kuraloviyamReaderWindow = window.open(targetUrl, "KuraloviyamTolkappiyamReader");
-                } else {
-                    kuraloviyamReaderWindow.location.href = targetUrl;
-                    kuraloviyamReaderWindow.focus();
-                }
+            const targetUrl = `https://kuraloviyam.com/tholkappiyam/${activeSongNo}`;
+            if (!kuraloviyamReaderWindow || kuraloviyamReaderWindow.closed) {
+                kuraloviyamReaderWindow = window.open(targetUrl, "KuraloviyamTolkappiyamReader");
+            } else {
+                kuraloviyamReaderWindow.location.href = targetUrl;
+                kuraloviyamReaderWindow.focus();
             }
         }
 
