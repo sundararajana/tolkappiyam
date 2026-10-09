@@ -182,18 +182,6 @@
             white-space: pre-wrap; /* This makes the \n in your JSON render as actual line breaks! */
         }
 
-        .tamilvu-iframe-wrapper {
-            width: 100%;
-        }
-
-        .tamilvu-iframe-wrapper iframe {
-            display: block;
-            width: 100%;
-            height: 350px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
         .external-nurpa-link, .concordance-link {
            margin-left: 15px;
            color: var(--primary);
@@ -271,20 +259,33 @@
         <div id="nurpa-display" class="nurpa-card">
           <h4 id="nurpa-title" class="nurpa-title"></h4>
           <p id="nurpa-text" class="nurpa-text"></p>
-          <hr>
-          <div id="tamilvu-iframe-container" class="tamilvu-iframe-wrapper" ></div>
         </div>
 
         <div id="external-nurpa-links" style="margin-bottom: 20px;">
-            <a href="#" id="kuraloviyam-nurpa-link" style="display: none" class="external-nurpa-link" onclick="openKuraloviyam(); return false;">
+            <a href="#" id="kuraloviyam-nurpa-link"
+                style="display: none"
+                class="external-nurpa-link"
+                onclick="openKuraloviyam(); return false;">
                 📖 குறளோவியம் தளத்தில் உரை ↗
             </a>
-
-            <a href="#" id="cict-nurpa-link" style="display: none" class="external-nurpa-link" onclick="openCICT(); return false;">
+            <a href="#"
+                id="cict-nurpa-link"
+                style="display: none"
+                class="external-nurpa-link"
+                onclick="openCICT(); return false;">
                 செம்மொழித் தமிழாய்வு மத்திய நிறுவனத்தில் உரை ↗
             </a>
-
-            <a href="#" id="tamilvu-nurpa-link" style="display:none" class="external-nurpa-link" onclick="openTamilvu(); return false;">
+            <a href="#" id="tamilvu-nurpa-link-default-urai"
+                style="display:none"
+                class="external-nurpa-link"
+                onclick="openTamilvu(false); return false;">
+                தமிழ் இணையக் கல்விக்கழகத்தில் உரை (இயல்புநிலை) ↗
+            </a>
+            <a href="#"
+                id="tamilvu-nurpa-link"
+                style="display:none"
+                class="external-nurpa-link"
+                onclick="openTamilvu(true); return false;">
                 தமிழ் இணையக் கல்விக்கழக தளத்தில் உரை ↗
             </a>
         </div>
@@ -405,6 +406,7 @@
         const nextBtn = document.getElementById('next-btn');
         const currentSelectionText = document.getElementById('current-selection-text');
         const kuraloviyamNurpaLink = document.getElementById('kuraloviyam-nurpa-link');
+        const tamilvuNurpaLinkDefaultUrai = document.getElementById('tamilvu-nurpa-link-default-urai');
         const tamilvuNurpaLink = document.getElementById('tamilvu-nurpa-link');
         const cictNurpaLink = document.getElementById('cict-nurpa-link');
         const changeAuthorBtn = document.getElementById('change-author-btn');
@@ -589,9 +591,9 @@
                     const iyalStart = a.iyals[i].start;
                     const iyalEnd = a.iyals[i].end;
                     if (songNo >= iyalStart && songNo <= iyalEnd) {
-                        return { 
+                        return {
                             athikaramId: a.id,
-                            iyalIndex: i, 
+                            iyalIndex: i,
                             iyalStart: iyalStart,
                             iyalEnd: iyalEnd
                         };
@@ -676,11 +678,19 @@
             }
         }
 
-        function openTamilvu() {
+        function openTamilvu(uraiSelection = true) {
+            var nurpaObj = numberToNurpa.get(activeSongNo);
             const nurpaLoc = findLocationOfNurpa(activeSongNo);
             const activeSongAthikaram = nurpaLoc.athikaramId;
-            const targetUrl = `https://www.tamilvu.org/slet/l0100/l0100uri.jsp?song_no=` + 
-                `${activeSongNo}&book_id=1&head_id=${activeSongAthikaram}`;
+            let targetUrl;
+
+            if (uraiSelection) {
+                targetUrl = `https://www.tamilvu.org/slet/l0100/l0100uri.jsp?song_no=` +
+                    `${activeSongNo}&book_id=1&head_id=${activeSongAthikaram}`;
+            } else {
+                targetUrl = `https://www.tamilvu.org/slet/l0100/l0100noo.jsp?song_no=` +
+                    `${nurpaObj.in_athikaram_number}&head_id=${activeSongAthikaram}`;
+            }
 
             if (!tamilvuReaderWindow || tamilvuReaderWindow.closed) {
                 tamilvuReaderWindow = window.open(targetUrl, "TamilvuTolkappiyamReader");
@@ -705,6 +715,7 @@
         function closeNurpaDisplay() {
             currentSelectionText.innerHTML = '';
             kuraloviyamNurpaLink.style.display = 'none';
+            tamilvuNurpaLinkDefaultUrai.style.display = 'none';
             tamilvuNurpaLink.style.display = 'none';
         }
 
@@ -786,9 +797,9 @@
 
             // 3. Enable tamilvu nurpa link, update the status text and next/prev buttons (Existing logic)
             // Update the status text with the formatted label
-            
-            tamilvuNurpaLink.style.display = "inline-block";
             cictNurpaLink.style.display = 'inline-block';
+            tamilvuNurpaLinkDefaultUrai.style.display = "inline-block";
+            tamilvuNurpaLink.style.display = "inline-block";
             const labelStr = getLabelForNurpa(songNo, currentAthikaramId);
             currentSelectionText.innerHTML = `
     <button id="close-nurpa-display" onClick = "closeNurpaDisplay()">&times;</button>
