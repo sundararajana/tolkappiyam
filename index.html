@@ -344,10 +344,10 @@
         </div>
     </main>
 
+    <script src="mobile_detect.js"></script>
+
     <script>
-        if (!window.name) {
-            window.name = "TolkappiyamMainPage";
-        }
+        window.name = "TolkappiyamMainPage";
 
         const tolkappiamData = [
             {
@@ -418,8 +418,6 @@
         // Currently shown nurpa on screen. Note that the nurpa may be from
         // a different athikaram and/or iyal than the current ones.
         let activeSongNo = null;
-        let kuraloviyamReaderWindow = null;
-        let tamilvuReaderWindow = null;
         // used for search to walk through all nurpas for match
         let nurpaDatabase = [];
         // used to find a particular nurpa given its global number
@@ -572,7 +570,8 @@
 
             changeAuthorBtn.addEventListener('click', () => {
                 alert("தமிழ் இணையக் கல்விக்கழகத்தின் முதன்மைப் பக்கம் புதிய திரையில் திறக்கப்படும். அங்கு உரையாசிரியரைத் தேர்ந்தெடுத்தலாம்.");
-                window.open("https://www.tamilvu.org/library/l0100/html/l0100ind.htm?book_id=1", "TamilvuReader");
+                window.open("https://www.tamilvu.org/library/l0100/html/l0100ind.htm?book_id=1",
+                    isMobile ? "_blank" : "TamilvuTolkappiyamReader");
             });
 
             populateIyals(currentAthikaramId);
@@ -670,12 +669,7 @@
 
         function openKuraloviyam() {
             const targetUrl = `https://kuraloviyam.com/tholkappiyam/${activeSongNo}`;
-            if (!kuraloviyamReaderWindow || kuraloviyamReaderWindow.closed) {
-                kuraloviyamReaderWindow = window.open(targetUrl, "KuraloviyamTolkappiyamReader");
-            } else {
-                kuraloviyamReaderWindow.location.href = targetUrl;
-                kuraloviyamReaderWindow.focus();
-            }
+            window.open(targetUrl, isMobile ? "_blank" : "KuraloviyamTolkappiyamReader");
         }
 
         function openTamilvu(uraiSelection = true) {
@@ -692,12 +686,7 @@
                     `${nurpaObj.in_athikaram_number}&head_id=${activeSongAthikaram}`;
             }
 
-            if (!tamilvuReaderWindow || tamilvuReaderWindow.closed) {
-                tamilvuReaderWindow = window.open(targetUrl, "TamilvuTolkappiyamReader");
-            } else {
-                tamilvuReaderWindow.location.href = targetUrl;
-                tamilvuReaderWindow.focus();
-            }
+            window.open(targetUrl, isMobile ? "_blank" : "TamilvuTolkappiyamReader");
         }
 
         function openCICT() {
@@ -709,7 +698,7 @@
             const nurpaWithinIyal = activeSongNo - nurpaLoc.iyalStart;
             const targetUrl = `https://cictdl.github.io/Tolkappiyam/#` +
                     `${activeSongAthikaram - 1}/${nurpaLoc.iyalIndex}/${nurpaWithinIyal}`;
-                window.open(targetUrl, "_blank");
+            window.open(targetUrl, "_blank");
         }
 
         function closeNurpaDisplay() {
