@@ -2,7 +2,7 @@
 
 // update this cache name if site content (js/html/css) changes
 const PROJECT_PREFIX = 'tolkappiyam-shell';
-const CACHE_NAME = 'tolkappiyam-shell-v6';
+const CACHE_NAME = 'tolkappiyam-shell-v7';
 const ASSETS = [
   // html files, directories
   './',
@@ -23,13 +23,15 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   );
+  // Force the waiting service worker to become active right away
+  self.skipWaiting();
 });
 
 // Activate: Clean up old shells if you bump version
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
+    caches.keys().then((keys) => {
+      return Promise.all(
         keys.map((key) => {
           // Only touch caches belonging to THIS project, and delete old versions of it
           if (key.startsWith(PROJECT_PREFIX) && key !== CACHE_NAME) {
@@ -38,7 +40,10 @@ self.addEventListener('activate', (event) => {
           }
         })
       )
-    )
+    }).then(() => {
+      // Take control of all open pages immediately
+      return self.clients.claim();
+    })
   );
 });
 
