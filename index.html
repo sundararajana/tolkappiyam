@@ -426,7 +426,7 @@
         // used for search to walk through all nurpas for match
         let nurpaDatabase = [];
         // used to find a particular nurpa given its global number
-        let numberToNurpa = new Map();
+        let numberToNurpa = new Array(MAX_NURPA);
 
         function executeSearch() {
             const inputField = document.getElementById('nurpa-search-input');
@@ -531,7 +531,7 @@
                     });
 
                     nurpaDatabase.forEach((value, _) => {
-                        numberToNurpa.set(value.global_number, value);
+                        numberToNurpa[value.global_number - 1] = value;
                     });
 
                     populateNurpas();
@@ -657,7 +657,7 @@
 
                 // Add native browser tooltip on hover
                 if (isSafeNurpaNumber(i)) {
-                    const nurpaObj = numberToNurpa.get(i);
+                    const nurpaObj = numberToNurpa[i - 1];
                     if (nurpaObj) {
                         btn.title = nurpaObj.text;
                     }
@@ -677,7 +677,7 @@
         }
 
         function openTamilvu(uraiSelection = true) {
-            var nurpaObj = numberToNurpa.get(activeSongNo);
+            var nurpaObj = numberToNurpa[activeSongNo - 1];
             const nurpaLoc = findLocationOfNurpa(activeSongNo);
             const activeSongAthikaram = nurpaLoc.athikaramId;
             let targetUrl;
@@ -759,7 +759,7 @@
             // 2. Inject the JSON text into the card
             // Display inline JSON text if available
             // Find the nurpa by its dynamically generated global number
-            const nurpaObj = numberToNurpa.get(parseInt(songNo, 10));
+            const nurpaObj = numberToNurpa[parseInt(songNo, 10) - 1];
 
             if (nurpaObj && isSafeNurpaNumber(songNo)) {
                 document.getElementById('nurpa-title').textContent = `${nurpaObj.athikaram} - ${nurpaObj.iyal} (${nurpaObj.in_iyal_number})`;
