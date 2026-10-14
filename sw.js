@@ -2,7 +2,8 @@
 
 // update this cache name if site content (js/html/css) changes
 const PROJECT_PREFIX = 'tolkappiyam-shell';
-const CACHE_NAME = 'tolkappiyam-shell-v7';
+const CACHE_NAME = `${PROJECT_PREFIX}-v8`;
+
 const ASSETS = [
   // html files, directories
   './',
